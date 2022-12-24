@@ -4,7 +4,7 @@
   "type": "module",
   "description": "NCSS is not CSS",
   "scripts": {
-    "start": "node src/interpriter.js"
+    "start": "node index.js"
   },
   "author": "",
   "license": "MIT"
