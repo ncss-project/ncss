@@ -1,10 +1,30 @@
-<program> := <functdef>+
-<funct_def> := '#'<ident> '(' <func_args> ')' { <stat_list> }
-<funct_args> := <ident>[, <ident>]*
-<stat_list> := <statement>;[statement;]*
-<statement> := <call_func>
-<call_func> := <ident> '(' <string> ')'
-<string> := '"'<any charactor>'"'
-<ident> := <latter>[<latter> | <digit>]*
-<latter> := [a-zA-Z]+
-<digit> := [0-9]+
+<program>       := <funct_def>+
+<funct_def>     := '#'<ident><func_args>?{ <stat_list> }
+<func_args>     := '['<ident>( [<ident>])*']'
+
+<stat_list>     := <statement>+
+<statement>     := <call_func> | <call_if> | <call_while> | <assign> | <return> | <break>
+
+<call_if>       := '.'if'['<relation>']'{ <statement> } (else <call_if>) | else | <statement>
+<call_while>    := '.'while '['<relation>']' { <statlist> } 
+
+<assign>        := <variable>:(<latter> | <digit>)+;
+<call_func>     := function:<func_name>;
+<return>        := return: ( latter | digit)+
+<break>         := break: <string>;
+
+<relation>      := <bool> |<expression> <rel_op> <expression>
+<rel_op>        := > | < | == | != | <= | >= 
+
+<expression>    := <expression> <add_op> <term> | <term>
+<term>          := <term> <mul_op> <factor> | <factor>
+<factor>        := <literal> | "(" <expression> ")" | <funccall>
+<add_op>        := + | -
+<mul_op>        := * | / | %
+
+<string>        := '"'<any charactor>'"'
+<func_name>     := '#'<latter>(<ident> | - )+
+<variable>      := --<latter>(<ident> | - )+
+<ident>         := <latter>[<latter> | <digit>]*
+<latter>        := [a-zA-Z]+
+<digit>         := [0-9]+
