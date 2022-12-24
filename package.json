@@ -1,0 +1,11 @@
+{
+  "name": "ncss",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "NCSS is not CSS",
+  "scripts": {
+    "start": "node src/interpriter.js"
+  },
+  "author": "",
+  "license": "MIT"
+}
