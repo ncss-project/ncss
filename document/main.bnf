@@ -1,0 +1,10 @@
+<program> := <functdef>+
+<funct_def> := '#'<ident> '(' <func_args> ')' { <stat_list> }
+<funct_args> := <ident>[, <ident>]*
+<stat_list> := <statement>;[statement;]*
+<statement> := <call_func>
+<call_func> := <ident> '(' <string> ')'
+<string> := '"'<any charactor>'"'
+<ident> := <latter>[<latter> | <digit>]*
+<latter> := [a-zA-Z]+
+<digit> := [0-9]+
