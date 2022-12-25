@@ -71,19 +71,19 @@ export class Scanner {
         if ((/["']/).test(x)) { // scan-latter
           const quotation = x;
           let str = '"';
-          idx++;
+          idx += 1;
           for (; (text[idx]) != quotation; idx++) {
             str += text[idx];
           }
           str += '"';
-          idx++;
+          idx += 1;
           tokens.push(tokenize(str));
-        } else if ((/=|<|>|!/).test(x)) { // scan-eq
+        } else if ((/[=<>!]/).test(x)) { // scan-eq
           let op = text[idx];
-          idx++;
+          idx += 1;
           if (text[idx] === "=") {
             op += text[idx];
-            idx++;
+            idx += 1;
           }
 
           tokens.push(tokenize(op));
@@ -95,13 +95,25 @@ export class Scanner {
           tokens.push(tokenize(num));
         } else if ((/[a-zA-Z\.]/).test(x)) { // scan-latter
           let latter = text[idx];
-          idx++;
-          for (; (/[a-zA-Z0-9_]/).test(text[idx]); idx++) {
+          idx += 1;
+          for (; (/[a-zA-Z0-9_\-]/).test(text[idx]); idx++) {
             latter += text[idx];
           }
           tokens.push(tokenize(latter));
         } else if (x === " " || x === "\n") { // skip
           idx += 1;
+        } else if (x === "-") {
+          idx += 1;
+          if (text[idx] === "-") {
+            let latter = "--";
+            idx += 1;
+            for (; (/[a-zA-Z0-9_\-]/).test(text[idx]); idx++) {
+              latter += text[idx];
+            }
+            tokens.push(tokenize(latter));
+          } else {
+            tokens.push(tokenize(x));
+          }
         } else {
           tokens.push(tokenize(x));
           idx += 1;

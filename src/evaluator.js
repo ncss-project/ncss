@@ -6,7 +6,7 @@ export class Evaluator {
     const global = {
       func_table: {
         "print": (args) => {
-          syscall_stdout(global, args[0 ]);
+          syscall_stdout(global, args[0]);
         },
       },
       var_table: {},
@@ -23,9 +23,9 @@ export class Evaluator {
   }
 }
 
-class GoToError extends Error {}
-class ReturnError extends GoToError {}
-class BreakError extends GoToError {}
+class GoToError extends Error { }
+class ReturnError extends GoToError { }
+class BreakError extends GoToError { }
 
 function eval_program(global, ast) {
   for (let i = 0; i < ast.length; i++) {
