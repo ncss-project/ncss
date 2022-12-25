@@ -68,10 +68,11 @@ export class Scanner {
       while (idx < text.length) {
         const x = text[idx];
 
-        if ((/"/).test(x)) { // scan-latter
-          let str = x;
+        if ((/["']/).test(x)) { // scan-latter
+          const quotation = x;
+          let str = '"';
           idx++;
-          for (; (text[idx]) != '"'; idx++) {
+          for (; (text[idx]) != quotation; idx++) {
             str += text[idx];
           }
           str += '"';
@@ -95,7 +96,7 @@ export class Scanner {
         } else if ((/[a-zA-Z\.]/).test(x)) { // scan-latter
           let latter = text[idx];
           idx++;
-          for (; (/[a-zA-Z0-9]/).test(text[idx]); idx++) {
+          for (; (/[a-zA-Z0-9_]/).test(text[idx]); idx++) {
             latter += text[idx];
           }
           tokens.push(tokenize(latter));

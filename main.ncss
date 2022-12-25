@@ -1,7 +1,7 @@
 #main {
-    i=0;
-    .if[i<5] {
-        print("if");
+    i_1 = 6;
+    .if[i_1 < 5] {
+        print('if');
     }
     .else {
         print("else");
