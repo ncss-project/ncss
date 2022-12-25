@@ -18,11 +18,11 @@ export class Scanner {
           return $("BEGIN", word);
         case word == "}":
           return $("END", word);
-        case word == "while":
+        case word == ".while":
           return $("WHILE", word);
-        case word == "if":
+        case word == ".if":
           return $("IF", word);
-        case word == "else":
+        case word == ".else":
           return $("ELSE", word);
         case word == "break":
           return $("BREAK", word);
@@ -44,6 +44,8 @@ export class Scanner {
           return $("OP_MUL", word);
         case word == "=":
           return $("ASSIGN", word);
+        case word == ":":
+          return $("COLON", word);
         case word == ";":
           return $("SEMICOLON", word);
         case word == ",":
@@ -65,6 +67,7 @@ export class Scanner {
       let idx = 0;
       while (idx < text.length) {
         const x = text[idx];
+
         if ((/"/).test(x)) { // scan-latter
           let str = x;
           idx++;
@@ -89,9 +92,10 @@ export class Scanner {
             num += text[idx];
           }
           tokens.push(tokenize(num));
-        } else if ((/[a-z]|[A-Z]/).test(x)) { // scan-latter
-          let latter = "";
-          for (; (/[a-z]|[A-Z]|[0-9]/).test(text[idx]); idx++) {
+        } else if ((/[a-zA-Z\.]/).test(x)) { // scan-latter
+          let latter = text[idx];
+          idx++;
+          for (; (/[a-zA-Z0-9]/).test(text[idx]); idx++) {
             latter += text[idx];
           }
           tokens.push(tokenize(latter));

@@ -62,7 +62,7 @@ export function parse(sc) {
         take("COMMA");
       }
     }
-    console.log('_funcargs', _funcargs)
+
     return _funcargs;
   };
 
@@ -135,9 +135,9 @@ export function parse(sc) {
   const call_while = () => {
     const _while = [];
     _while.push(take("WHILE"));
-    take("PARENTHES_OPEN");
+    take("SQ_PARENTHES_OPEN");
     _while.push(relation());
-    take("PARENTHES_CLOSE");
+    take("SQ_PARENTHES_CLOSE");
     take("BEGIN");
     _while.push(statlist());
     take("END");
@@ -147,9 +147,9 @@ export function parse(sc) {
   const call_if = () => {
     const _if = [];
     _if.push(take("IF"));
-    take("PARENTHES_OPEN");
+    take("SQ_PARENTHES_OPEN");
     _if.push(relation());
-    take("PARENTHES_CLOSE");
+    take("SQ_PARENTHES_CLOSE");
     take("BEGIN");
     _if.push(statlist());
     take("END");
