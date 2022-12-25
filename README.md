@@ -6,9 +6,14 @@ B. Hmm..."HTML" and "CSS".
 A. (It isn't programming languages.)
 ```
 
-## Installtion
+## Install
 ```zsh
 npm install
+```
+
+## Usage
+```zsh
+npm run start
 ```
 
 ## Reference
