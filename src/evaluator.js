@@ -68,8 +68,8 @@ function eval_statement(global, env, ast) {
   const token = ast.shift();
 
   switch (token.type) {
-    case "call_func": {
-      return eval_call_func(global, deep_copy(env), ast);
+    case "call_cmd": {
+      return eval_call_cmd(global, deep_copy(env), ast);
     }
     case "IF": {
       return eval_if(global, env, ast);
@@ -94,7 +94,7 @@ function eval_statement(global, env, ast) {
   throw new Error("Unkown Error");
 }
 
-function eval_call_func(global, env, ast) {
+function eval_call_cmd(global, env, ast) {
   const name = ast.shift().value;
   const args = ast.shift();
   const mapped_args = args.map((t) => eval_expr(global, deep_copy(env), t));
@@ -209,8 +209,8 @@ function eval_expr(global, env, ast) {
       const y = eval_expr(global, env, ast.shift());
       return x % y;
     }
-    case "call_func": {
-      return eval_call_func(global, env, ast);
+    case "call_cmd": {
+      return eval_call_cmd(global, env, ast);
     }
     case "VARIABLE": {
       return env.var_table[token.value];

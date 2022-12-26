@@ -87,7 +87,7 @@ export function parse(sc) {
       take("SEMICOLON");
     } else if (match("IDENT")) {
       const name = take("IDENT");
-      _statement.push(call_func(name));
+      _statement.push(call_cmd(name));
       take("SEMICOLON");
     } else if (match("VARIABLE")) {
       const name = take("VARIABLE");
@@ -98,13 +98,12 @@ export function parse(sc) {
     return _statement;
   };
 
-  const call_func = (name) => {
+  const call_cmd = (name) => {
     const _funcall = [];
-    _funcall.push($("call_func"));
+    _funcall.push($("call_cmd"));
     _funcall.push(name);
-    take("PARENTHES_OPEN");
+    take("COLON");
     _funcall.push(call_args());
-    take("PARENTHES_CLOSE");
 
     return _funcall;
   };
@@ -117,6 +116,7 @@ export function parse(sc) {
         take("COMMA");
       }
     }
+    console.log("🚀 : _args", _args[0][0])
     return _args;
   };
 
@@ -224,7 +224,7 @@ export function parse(sc) {
   const literal = () => {
     const _literal = take("INT", "STRING", "BOOL", "IDENT", "VARIABLE");
     if (_literal.type == "IDENT" && match("PARENTHES_OPEN")) {
-      return call_func(_literal);
+      return call_cmd(_literal);
     }
     return [_literal];
   };
