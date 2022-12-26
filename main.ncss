@@ -1,9 +1,12 @@
 #main {
-    --i-1 : 4;
-    --i-1 : --i-1 + 2;
+    --i-1: 4;
+    --i-1: --i-1 + 2;
+    print("number is " + --i-1);
+
     .if[--i-1 < 5] {
         print('if');
     }
+
     .else {
         print("else");
     }

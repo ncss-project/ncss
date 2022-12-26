@@ -103,21 +103,21 @@ export function parse(sc) {
     _funcall.push($("call_func"));
     _funcall.push(name);
     take("PARENTHES_OPEN");
-    _funcall.push(callargs());
+    _funcall.push(call_args());
     take("PARENTHES_CLOSE");
 
     return _funcall;
   };
 
-  const callargs = () => {
-    const _callargs = [];
-    while (match("INT", "STRING", "BOOL", "IDENT")) {
-      _callargs.push(expr());
+  const call_args = () => {
+    const _args = [];
+    while (match("INT", "STRING", "BOOL", "IDENT", "VARIABLE")) {
+      _args.push(expr());
       if (match("COMMA")) {
         take("COMMA");
       }
     }
-    return _callargs;
+    return _args;
   };
 
   const assign = (name) => {
