@@ -3,63 +3,67 @@ import { $ } from "./util.js";
 export class Scanner {
   constructor(text) {
     const tokenize = (word) => {
-      switch (true) {
-        case word == "#":
+      switch (word) {
+        case "#":
           return $("FUNCDEF", word);
-        case word == "[":
+        case "[":
           return $("SQ_PARENTHES_OPEN", word);
-        case word == "]":
+        case "]":
           return $("SQ_PARENTHES_CLOSE", word);
-        case word == "(":
+        case "(":
           return $("PARENTHES_OPEN", word);
-        case word == ")":
+        case ")":
           return $("PARENTHES_CLOSE", word);
-        case word == "{":
+        case "{":
           return $("BEGIN", word);
-        case word == "}":
+        case "}":
           return $("END", word);
-        case word == ".while":
+        case ".while":
           return $("WHILE", word);
-        case word == ".if":
+        case ".if":
           return $("IF", word);
-        case word == ".else":
+        case ".else":
           return $("ELSE", word);
-        case word == "break":
+        case "break":
           return $("BREAK", word);
-        case word == "return":
+        case "return":
           return $("RETURN", word);
-        case word == "==":
-        case word == ">":
-        case word == "<":
-        case word == ">=":
-        case word == "<=":
-        case word == "!=":
+        case "==":
+        case ">":
+        case "<":
+        case ">=":
+        case "<=":
+        case "!=":
           return $("OP_REL", word);
-        case word == "+":
-        case word == "-":
+        case "+":
+        case "-":
           return $("OP_ADD", word);
-        case word == "*":
-        case word == "/":
-        case word == "%":
+        case "*":
+        case "/":
+        case "%":
           return $("OP_MUL", word);
-        case word == "=":
+        case "=":
           return $("ASSIGN", word);
-        case word == ":":
+        case ":":
           return $("COLON", word);
-        case word == ";":
+        case ";":
           return $("SEMICOLON", word);
-        case word == ",":
+        case ",":
           return $("COMMA", word);
-        case word == "true":
+        case "true":
           return $("BOOL", true);
-        case word == "false":
+        case "false":
           return $("BOOL", false);
-        case (/^\d+/).test(word):
-          return $("INT", parseInt(word));
-        case (/"(.*)"/).test(word):
-          return $("STRING", word.match(/"(.*)"/)[1]);
         default:
-          return $("IDENT", word);
+          if ((/^\d+/).test(word))
+            return $("INT", parseInt(word));
+
+          else if ((/"(.*)"/).test(word))
+            return $("STRING", word.match(/"(.*)"/)[1]);
+
+          else
+            return $("IDENT", word);
+
       }
     };
     const split = (text) => {
