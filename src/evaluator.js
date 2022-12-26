@@ -1,12 +1,18 @@
 import { deep_copy } from "./util.js";
-import Config from "./config.js";
+import Commands from "./commands.js";
+import Functions from "./functions.js";
 
 export class Evaluator {
   apply(ast) {
     const global = {
-      func_table: {
+      cmd_table: {
         "content": (args) => {
-          syscall_stdout(global, args[0]);
+          Commands.syscall_stdout(global, args[0])
+        },
+      },
+      func_table: {
+        "var": (args) => {
+          Functions.get_var(global, args)
         },
       },
       var_table: {},
@@ -14,8 +20,8 @@ export class Evaluator {
     };
 
     eval_program(global, ast);
-    if (global.func_table.main) {
-      global.func_table["main"]();
+    if (global.cmd_table.main) {
+      global.cmd_table["main"]();
     } else {
       throw new Error("Syntax Error:'main' function is not defined.");
     }
@@ -29,16 +35,16 @@ class BreakError extends GoToError { }
 
 function eval_program(global, ast) {
   for (let i = 0; i < ast.length; i++) {
-    eval_funcdef(global, ast[i]);
+    eval_cmddef(global, ast[i]);
   }
 }
 
-function eval_funcdef(global, ast) {
+function eval_cmddef(global, ast) {
   ast.shift(); // fundef
   const name = ast.shift()[0].value;
   const args = ast.shift();
 
-  global.func_table[name] = (args_values) => {
+  global.cmd_table[name] = (args_values) => {
     const env = {
       var_table: {},
     };
@@ -99,7 +105,7 @@ function eval_call_cmd(global, env, ast) {
   const args = ast.shift();
   const mapped_args = args.map((t) => eval_expr(global, deep_copy(env), t));
 
-  return global.func_table[name](mapped_args);
+  return global.cmd_table[name](mapped_args);
 }
 
 function eval_if(global, env, ast) {
@@ -219,13 +225,5 @@ function eval_expr(global, env, ast) {
     case "STRING":
     case "BOOL":
       return token.value;
-  }
-}
-
-function syscall_stdout(global, text) {
-  global.stdout.push(text);
-
-  if (Config.is_show_console()) {
-    console.log(global.stdout[global.stdout.length - 1]);
   }
 }
