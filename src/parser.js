@@ -12,9 +12,8 @@ export function parse(sc) {
   };
 
   const take = (...type) => {
-    const token = sc.peek();
-
     let r = false;
+    const token = sc.peek();
     for (let i = 0; i < type.length; i++) {
       r |= token != undefined && token.type === type[i];
     }
@@ -76,7 +75,6 @@ export function parse(sc) {
 
   const statement = () => {
     const _statement = [];
-
     if (match("WHILE")) {
       _statement.push(call_while());
     } else if (match("IF")) {
@@ -89,11 +87,11 @@ export function parse(sc) {
       take("SEMICOLON");
     } else if (match("IDENT")) {
       const name = take("IDENT");
-      if (match("ASSIGN")) {
-        _statement.push(assign(name));
-      } else {
-        _statement.push(call_func(name));
-      }
+      _statement.push(call_func(name));
+      take("SEMICOLON");
+    } else if (match("VARIABLE")) {
+      const name = take("VARIABLE");
+      _statement.push(assign(name));
       take("SEMICOLON");
     }
 
@@ -124,8 +122,9 @@ export function parse(sc) {
 
   const assign = (name) => {
     const _assign = [];
-
-    _assign.push(take("ASSIGN"));
+    const _colon = take("COLON");
+    _colon.type = "ASSIGN";
+    _assign.push(_colon);
     _assign.push([name]);
     _assign.push(expr());
 
@@ -223,7 +222,7 @@ export function parse(sc) {
   };
 
   const literal = () => {
-    const _literal = take("INT", "STRING", "BOOL", "IDENT");
+    const _literal = take("INT", "STRING", "BOOL", "IDENT", "VARIABLE");
     if (_literal.type == "IDENT" && match("PARENTHES_OPEN")) {
       return call_func(_literal);
     }

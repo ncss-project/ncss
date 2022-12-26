@@ -212,7 +212,7 @@ function eval_expr(global, env, ast) {
     case "call_func": {
       return eval_call_func(global, env, ast);
     }
-    case "IDENT": {
+    case "VARIABLE": {
       return env.var_table[token.value];
     }
     case "INT":

@@ -55,6 +55,9 @@ export class Scanner {
         case "false":
           return $("BOOL", false);
         default:
+          if ((/^(\-\-)/).test(word))
+            return $("VARIABLE", word);
+
           if ((/^\d+/).test(word))
             return $("INT", parseInt(word));
 
@@ -63,7 +66,6 @@ export class Scanner {
 
           else
             return $("IDENT", word);
-
       }
     };
     const split = (text) => {
