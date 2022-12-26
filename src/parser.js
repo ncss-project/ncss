@@ -116,7 +116,7 @@ export function parse(sc) {
         take("COMMA");
       }
     }
-    console.log("🚀 : _args", _args[0][0])
+
     return _args;
   };
 

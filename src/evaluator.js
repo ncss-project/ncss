@@ -5,7 +5,7 @@ export class Evaluator {
   apply(ast) {
     const global = {
       func_table: {
-        "print": (args) => {
+        "content": (args) => {
           syscall_stdout(global, args[0]);
         },
       },

@@ -1,13 +1,13 @@
 #main {
     --i-1: 4;
     --i-1: --i-1 + 2;
-    print:"number is " + --i-1;
+    content: "number is " + --i-1;
 
     .if[--i-1 < 5] {
-        print: 'if';
+        content: 'if';
     }
 
     .else {
-        print: "else";
+        content: "else";
     }
 }
