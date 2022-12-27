@@ -4,12 +4,22 @@ class Commands {
     }
 
     transform(env, args) {
-        if (args.length !== 2)
-            throw new Error(`Command Error: Expected 2 arguments, but got ${args.length}.`);
-        if (!(args[0] in env.var_table))
-            throw new Error(`Variable Error: '${args[0]}' Variable is undefined.`);
+        if (args.length <= 1)
+            throw new Error(`Command Error: Expected 2 or more arguments, but got 1.`);
 
-        env.var_table[args[0]] = args[1];
+        const name = args.shift();
+        if (!(name in env.var_table))
+            throw new Error(`Variable Error: '${name}' Variable is undefined.`);
+
+        if (Array.isArray(env.var_table[name])) {
+            env.var_table[name] = args;
+        } else {
+            if (args.length !== 1)
+                throw new Error(`Array Error: '${name}' Array Cannot assign to Variable.`);
+
+            env.var_table[name] = args[0];
+        }
+
     }
 }
 

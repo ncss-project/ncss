@@ -14,6 +14,23 @@ class Functions {
 
         return env.var_table[name];
     }
+
+    arr(env, args) {
+        const a = [1, 2];
+        if (args.length !== 2)
+            throw new Error(`Syntax Error: Expected 2 arguments, but got ${args.length}.`);
+
+        const name = args.shift();
+        const index = args.shift();
+        const value = this.var_from_variable(env, name);
+
+        if (!Array.isArray(value))
+            throw new Error(`Array Error: '${name}' is not Array.`);
+        if (value.length <= index)
+            throw new Error(`Array Error: '${name}' Index out of range. req: ${index}, max: ${value.length - 1}`);
+
+        return value[index];
+    }
 }
 
 export default new Functions();

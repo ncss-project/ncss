@@ -11,6 +11,7 @@ export class Evaluator {
       },
       func_table: {
         var: (env, args) => Functions.var(env, args),
+        arr: (env, args) => Functions.arr(env, args),
       },
       var_table: {},
       stdout: [],
@@ -83,12 +84,15 @@ function eval_statement(global, env, ast) {
     case "ASSIGN": {
       const name = ast.shift()[0].value;
 
-      if (ast.length !== 1)
-        throw new Error(`Syntax Error: Expected 1 arguments, but got ${ast.length}.`);
       if (name in env.var_table)
         throw new Error(`Variable Error: '${name}' Variable Cannot redeclare.`)
 
-      env.var_table[name] = eval_expr(global, env, ast.shift());
+      const _values = [];
+      while (ast.length > 0) {
+        _values.push(eval_expr(global, env, ast.shift()));
+      }
+
+      env.var_table[name] = _values.length === 1 ? _values[0] : _values;
       return env.var_table[name];
     }
     case "BREAK": {
@@ -270,7 +274,11 @@ function eval_expr_relation(global, env, ast) {
       return eval_call_func(global, env, ast);
     }
     case "VARIABLE": {
-      return Functions.var_from_variable(env, token.value);
+      const value = Functions.var_from_variable(env, token.value);
+      if (Array.isArray(value))
+        throw new Error(`Comparison Error: '${token.value}' Array cannot be compared.`)
+
+      return value;
     }
     case "INT":
     case "STRING":

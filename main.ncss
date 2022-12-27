@@ -1,14 +1,17 @@
 #main {
     /* this is comment */
     --num: 4;
-    transform: --num 5;
+    transform: --num 6;
     content: "--num is " + var(--num);
 
-    .if[--num >= 5] {
+    .if[--num>=5] {
         content: '--num 5 or higher.';
     }
 
     .else {
         content: "--num is less than 5.";
     }
+
+    --arr: 0 10 20 30 40 50;
+    content: "--arr[2] is " + arr(--arr 2);
 }
