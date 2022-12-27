@@ -1,5 +1,5 @@
 #main {
-    /* --num: 4; */
+    /* this is comment */
     --num: 4;
     --num: var(--num) + 2;
     content: "--num is " + var(--num);

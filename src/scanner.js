@@ -127,7 +127,7 @@ export class Scanner {
             idx += 1;
             while (text[idx - 1] !== "*" || text[idx] !== "/") {
               idx += 1;
-              if (text.length > idx) throw new Error("Comment is not closed.");
+              if (text.length <= idx) throw new Error("Comment is not closed.");
             }
             idx += 1;
           } else {
