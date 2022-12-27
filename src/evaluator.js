@@ -9,7 +9,7 @@ export class Evaluator {
         "content": (args) => Commands.syscall_stdout(global, args[0]),
       },
       func_table: {
-        "var": (env, args) => Functions.var(global, env, args),
+        "var": (env, args) => Functions.var(env, args),
       },
       var_table: {},
       stdout: [],

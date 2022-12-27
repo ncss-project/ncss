@@ -1,5 +1,5 @@
 class Functions {
-    var(global, env, args) {
+    var(env, args) {
         if (args.length === 0 || args.length > 1)
             throw new Error(`Syntax Error: Expected 1 arguments, but got ${args.length}.`);
 

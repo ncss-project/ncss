@@ -120,6 +120,20 @@ export class Scanner {
           } else {
             tokens.push(tokenize(x));
           }
+        } else if (x === "/") {
+          idx += 1;
+
+          if (text[idx] === "*") {
+            idx += 1;
+            while (text[idx - 1] !== "*" || text[idx] !== "/") {
+              idx += 1;
+              if (text.length > idx) throw new Error("Comment is not closed.");
+            }
+            idx += 1;
+          } else {
+            tokens.push(tokenize(x));
+          }
+
         } else {
           tokens.push(tokenize(x));
           idx += 1;

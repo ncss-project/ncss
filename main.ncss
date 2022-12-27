@@ -1,4 +1,5 @@
 #main {
+    /* --num: 4; */
     --num: 4;
     --num: var(--num) + 2;
     content: "--num is " + var(--num);
