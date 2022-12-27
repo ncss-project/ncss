@@ -149,7 +149,13 @@ export function parse(sc) {
     _colon.type = "ASSIGN";
     _assign.push(_colon);
     _assign.push([name]);
-    _assign.push(expr());
+
+    while (match("INT", "STRING", "BOOL", "IDENT", "VARIABLE")) {
+      _assign.push(expr());
+      if (match("COMMA")) {
+        take("COMMA");
+      }
+    }
 
     return _assign;
   };

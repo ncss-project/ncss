@@ -82,13 +82,13 @@ function eval_statement(global, env, ast) {
     }
     case "ASSIGN": {
       const name = ast.shift()[0].value;
-      const value = eval_expr(global, env, ast.shift());
 
+      if (ast.length !== 1)
+        throw new Error(`Syntax Error: Expected 1 arguments, but got ${ast.length}.`);
       if (name in env.var_table)
         throw new Error(`Variable Error: '${name}' Variable Cannot redeclare.`)
 
-      env.var_table[name] = value;
-
+      env.var_table[name] = eval_expr(global, env, ast.shift());
       return env.var_table[name];
     }
     case "BREAK": {
