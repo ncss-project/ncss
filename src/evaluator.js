@@ -22,7 +22,7 @@ export class Evaluator {
     if (!global.cmd_table.main)
       throw new Error("Syntax Error:'main' function is not defined.");
 
-    global.cmd_table.mainP();
+    global.cmd_table.main();
     return global;
   }
 }
