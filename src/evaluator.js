@@ -6,14 +6,10 @@ export class Evaluator {
   apply(ast) {
     const global = {
       cmd_table: {
-        "content": (args) => {
-          Commands.syscall_stdout(global, args[0])
-        },
+        "content": (args) => Commands.syscall_stdout(global, args[0]),
       },
       func_table: {
-        "var": (args) => {
-          Functions.get_var(global, args)
-        },
+        "var": (env, args) => Functions.var(global, env, args),
       },
       var_table: {},
       stdout: [],
@@ -106,6 +102,14 @@ function eval_call_cmd(global, env, ast) {
   const mapped_args = args.map((t) => eval_expr(global, deep_copy(env), t));
 
   return global.cmd_table[name](mapped_args);
+}
+
+function eval_call_func(global, env, ast) {
+  const name = ast.shift().value;
+  const args = ast.shift();
+  const mapped_args = args.map((t) => eval_expr(global, deep_copy(env), t));
+
+  return global.func_table[name](env, mapped_args);
 }
 
 function eval_if(global, env, ast) {
@@ -215,15 +219,14 @@ function eval_expr(global, env, ast) {
       const y = eval_expr(global, env, ast.shift());
       return x % y;
     }
-    case "call_cmd": {
-      return eval_call_cmd(global, env, ast);
+    case "call_func": {
+      return eval_call_func(global, env, ast);
     }
-    case "VARIABLE": {
-      return env.var_table[token.value];
-    }
+    case "VARIABLE":
     case "INT":
     case "STRING":
-    case "BOOL":
+    case "BOOL": {
       return token.value;
+    }
   }
 }

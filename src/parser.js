@@ -103,12 +103,12 @@ export function parse(sc) {
     _funcall.push($("call_cmd"));
     _funcall.push(name);
     take("COLON");
-    _funcall.push(call_args());
+    _funcall.push(call_cmd_args());
 
     return _funcall;
   };
 
-  const call_args = () => {
+  const call_cmd_args = () => {
     const _args = [];
     while (match("INT", "STRING", "BOOL", "IDENT", "VARIABLE")) {
       _args.push(expr());
@@ -119,6 +119,29 @@ export function parse(sc) {
 
     return _args;
   };
+
+  const call_func = (name) => {
+    const _funcall = [];
+    _funcall.push($("call_func"));
+    _funcall.push(name);
+    take("PARENTHES_OPEN");
+    _funcall.push(call_func_args());
+    take("PARENTHES_CLOSE");
+
+    return _funcall;
+  }
+
+  const call_func_args = () => {
+    const _args = [];
+    while (match("INT", "STRING", "BOOL", "IDENT", "VARIABLE")) {
+      _args.push(expr());
+      if (match("COMMA")) {
+        take("COMMA");
+      }
+    }
+
+    return _args;
+  }
 
   const assign = (name) => {
     const _assign = [];
@@ -224,7 +247,7 @@ export function parse(sc) {
   const literal = () => {
     const _literal = take("INT", "STRING", "BOOL", "IDENT", "VARIABLE");
     if (_literal.type == "IDENT" && match("PARENTHES_OPEN")) {
-      return call_cmd(_literal);
+      return call_func(_literal);
     }
     return [_literal];
   };

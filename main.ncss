@@ -1,13 +1,13 @@
 #main {
-    --i-1: 4;
-    --i-1: --i-1 + 2;
-    content: "number is " + --i-1;
+    --num: 4;
+    --num: var(--num) + 2;
+    content: "--num is " + var(--num);
 
-    .if[--i-1 < 5] {
-        content: 'if';
+    .if[var(--num) >= 5] {
+        content: '--num 5 or higher.';
     }
 
     .else {
-        content: "else";
+        content: "--num is less than 5.";
     }
 }
