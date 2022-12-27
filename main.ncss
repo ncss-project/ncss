@@ -1,7 +1,7 @@
 #main {
     /* this is comment */
     --num: 4;
-    --num: var(--num) + 2;
+    transform: --num 5;
     content: "--num is " + var(--num);
 
     .if[--num >= 5] {

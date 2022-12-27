@@ -6,10 +6,11 @@ export class Evaluator {
   apply(ast) {
     const global = {
       cmd_table: {
-        "content": (args) => Commands.syscall_stdout(global, args[0]),
+        content: (env, args) => Commands.syscall_stdout(global, args[0]),
+        transform: (env, args) => Commands.transform(env, args),
       },
       func_table: {
-        "var": (env, args) => Functions.var(env, args),
+        var: (env, args) => Functions.var(env, args),
       },
       var_table: {},
       stdout: [],
@@ -71,7 +72,7 @@ function eval_statement(global, env, ast) {
 
   switch (token.type) {
     case "call_cmd": {
-      return eval_call_cmd(global, deep_copy(env), ast);
+      return eval_call_cmd(global, env, ast);
     }
     case "IF": {
       return eval_if(global, env, ast);
@@ -82,7 +83,12 @@ function eval_statement(global, env, ast) {
     case "ASSIGN": {
       const name = ast.shift()[0].value;
       const value = eval_expr(global, env, ast.shift());
+
+      if (name in env.var_table)
+        throw new Error(`Variable Error: '${name}' Variable Cannot redeclare.`)
+
       env.var_table[name] = value;
+
       return env.var_table[name];
     }
     case "BREAK": {
@@ -99,9 +105,9 @@ function eval_statement(global, env, ast) {
 function eval_call_cmd(global, env, ast) {
   const name = ast.shift().value;
   const args = ast.shift();
-  const mapped_args = args.map((t) => eval_expr(global, deep_copy(env), t));
+  const mapped_args = args.map((t) => eval_expr(global, env, t));
 
-  return global.cmd_table[name](mapped_args);
+  return global.cmd_table[name](env, mapped_args);
 }
 
 function eval_call_func(global, env, ast) {
