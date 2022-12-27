@@ -9,7 +9,7 @@ export function parse(sc) {
     }
 
     return r;
-  };
+  }
 
   const take = (...type) => {
     let r = false;
@@ -26,7 +26,7 @@ export function parse(sc) {
 
     sc.next();
     return token;
-  };
+  }
 
   const program = () => {
     const _program = [];
@@ -34,7 +34,7 @@ export function parse(sc) {
       _program.push(funcdef());
     }
     return _program;
-  };
+  }
 
   const funcdef = () => {
     const _funcdef = [];
@@ -51,7 +51,7 @@ export function parse(sc) {
     _funcdef.push(statlist());
     take("END");
     return _funcdef;
-  };
+  }
 
   const funcargs = () => {
     const _funcargs = [];
@@ -63,7 +63,7 @@ export function parse(sc) {
     }
 
     return _funcargs;
-  };
+  }
 
   const statlist = () => {
     const _statlist = [];
@@ -71,7 +71,7 @@ export function parse(sc) {
       _statlist.push(smt);
     }
     return _statlist;
-  };
+  }
 
   const statement = () => {
     const _statement = [];
@@ -96,7 +96,7 @@ export function parse(sc) {
     }
 
     return _statement;
-  };
+  }
 
   const call_cmd = (name) => {
     const _funcall = [];
@@ -106,7 +106,7 @@ export function parse(sc) {
     _funcall.push(call_cmd_args());
 
     return _funcall;
-  };
+  }
 
   const call_cmd_args = () => {
     const _args = [];
@@ -118,7 +118,7 @@ export function parse(sc) {
     }
 
     return _args;
-  };
+  }
 
   const call_func = (name) => {
     const _funcall = [];
@@ -158,7 +158,7 @@ export function parse(sc) {
     }
 
     return _assign;
-  };
+  }
 
   const call_while = () => {
     const _while = [];
@@ -170,7 +170,7 @@ export function parse(sc) {
     _while.push(statlist());
     take("END");
     return _while;
-  };
+  }
 
   const call_if = () => {
     const _if = [];
@@ -192,7 +192,7 @@ export function parse(sc) {
       }
     }
     return _if;
-  };
+  }
 
   const relation = () => {
     const arg1 = expr();
@@ -203,7 +203,7 @@ export function parse(sc) {
     } else {
       return [$("OP_REL", "direct"), arg1];
     }
-  };
+  }
 
   const expr = () => {
     let _expr = term();
@@ -219,7 +219,7 @@ export function parse(sc) {
       }
     }
     return _expr;
-  };
+  }
 
   const term = () => {
     let _term = factor();
@@ -237,7 +237,7 @@ export function parse(sc) {
       }
     }
     return _term;
-  };
+  }
 
   const factor = () => {
     if (match("PARENTHES_OPEN")) {
@@ -248,7 +248,7 @@ export function parse(sc) {
       return _factor;
     }
     return literal();
-  };
+  }
 
   const literal = () => {
     const _literal = take("INT", "STRING", "BOOL", "IDENT", "VARIABLE");
@@ -256,7 +256,7 @@ export function parse(sc) {
       return call_func(_literal);
     }
     return [_literal];
-  };
+  }
 
   const ast = program();
   return ast;

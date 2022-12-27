@@ -1,19 +1,20 @@
-export const $ = (type, value = null) => {
+const $ = (type, value = null) => {
   return { type: type, value: value };
 };
 
-export function deep_copy(xs) {
+function deep_copy(xs) {
   return JSON.parse(JSON.stringify(xs));
 }
 
-export const show_tree = (tree) => {
+const show_tree = (tree) => {
   const _blank = (size) => {
     let blank = "";
     for (let i = 0; i < size; i++) {
       blank += "  ";
     }
     return blank;
-  };
+  }
+
   const _show = (tree, indent) => {
     if (Array.isArray(tree)) {
       for (let i = 0; i < tree.length; i++) {
@@ -25,6 +26,9 @@ export const show_tree = (tree) => {
       const obj = `{type: "${tree.type}", value: ${tree.value}}`;
       console.log(_blank(indent) + obj);
     }
-  };
+  }
+
   _show(tree, 0);
 };
+
+export { $, deep_copy, show_tree };

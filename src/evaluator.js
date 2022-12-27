@@ -37,7 +37,7 @@ function eval_program(global, ast) {
 }
 
 function eval_cmddef(global, ast) {
-  ast.shift(); // fundef
+  ast.shift();
   const name = ast.shift()[0].value;
   const args = ast.shift();
 
@@ -52,7 +52,7 @@ function eval_cmddef(global, ast) {
     try {
       eval_statementlist(global, env, deep_copy(ast).shift());
     } catch (err) {
-      if (err instanceof ReturnError) { // 例外では無く正常系。returnが投げられたら大域脱出
+      if (err instanceof ReturnError) {
         return env.result;
       } else {
         throw err;
@@ -127,7 +127,7 @@ function eval_if(global, env, ast) {
     eval_statementlist(global, env, block1);
   } else if (else_directive) {
     if (block2[0].type == "IF") {
-      block2.shift(); // if directive
+      block2.shift();
       eval_if(global, env, block2);
     } else {
       eval_statementlist(global, env, block2);
@@ -147,7 +147,7 @@ function eval_while(global, env, ast) {
       eval_statementlist(global, env, block);
     }
   } catch (err) {
-    if (!(err instanceof BreakError)) { // 例外では無く正常系。breakが投げられたら大域脱出
+    if (!(err instanceof BreakError)) {
       throw err;
     }
   }

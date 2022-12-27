@@ -74,7 +74,7 @@ export class Scanner {
       while (idx < text.length) {
         const x = text[idx];
 
-        if ((/["']/).test(x)) { // scan-latter
+        if ((/["']/).test(x)) {
           const quotation = x;
           let str = '"';
           idx += 1;
@@ -84,7 +84,7 @@ export class Scanner {
           str += '"';
           idx += 1;
           tokens.push(tokenize(str));
-        } else if ((/[=<>!]/).test(x)) { // scan-eq
+        } else if ((/[=<>!]/).test(x)) {
           let op = text[idx];
           idx += 1;
           if (text[idx] === "=") {
@@ -93,20 +93,20 @@ export class Scanner {
           }
 
           tokens.push(tokenize(op));
-        } else if ((/\d/).test(x)) { // scan-int
+        } else if ((/\d/).test(x)) {
           let num = "";
           for (; (/\d/).test(text[idx]); idx++) {
             num += text[idx];
           }
           tokens.push(tokenize(num));
-        } else if ((/[a-zA-Z\.]/).test(x)) { // scan-latter
+        } else if ((/[a-zA-Z\.]/).test(x)) {
           let latter = text[idx];
           idx += 1;
           for (; (/[a-zA-Z0-9_\-]/).test(text[idx]); idx++) {
             latter += text[idx];
           }
           tokens.push(tokenize(latter));
-        } else if (x === " " || x === "\n") { // skip
+        } else if (x === " " || x === "\n") {
           idx += 1;
         } else if (x === "-") {
           idx += 1;
@@ -149,10 +149,12 @@ export class Scanner {
   is_not_end() {
     return this.pos < this.tokens.length - 1;
   }
+
   next() {
     this.pos += 1;
     return this.tokens[this.pos];
   }
+
   peek() {
     return this.tokens[this.pos];
   }
