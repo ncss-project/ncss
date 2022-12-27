@@ -177,7 +177,7 @@ function eval_relation(global, env, ast) {
           const y = eval_expr(global, env, ast.shift());
           return x <= y;
         }
-        case "": {
+        case ">=": {
           const x = eval_expr(global, env, ast.shift());
           const y = eval_expr(global, env, ast.shift());
           return x >= y;
