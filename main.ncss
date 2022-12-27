@@ -3,7 +3,7 @@
     --num: var(--num) + 2;
     content: "--num is " + var(--num);
 
-    .if[var(--num) >= 5] {
+    .if[--num >= 5] {
         content: '--num 5 or higher.';
     }
 

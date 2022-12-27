@@ -153,37 +153,37 @@ function eval_relation(global, env, ast) {
     case "OP_REL": {
       switch (token.value) {
         case "==": {
-          const x = eval_expr(global, env, ast.shift());
-          const y = eval_expr(global, env, ast.shift());
+          const x = eval_expr_relation(global, env, ast.shift());
+          const y = eval_expr_relation(global, env, ast.shift());
           return x == y;
         }
         case "!=": {
-          const x = eval_expr(global, env, ast.shift());
-          const y = eval_expr(global, env, ast.shift());
+          const x = eval_expr_relation(global, env, ast.shift());
+          const y = eval_expr_relation(global, env, ast.shift());
           return x != y;
         }
         case "<": {
-          const x = eval_expr(global, env, ast.shift());
-          const y = eval_expr(global, env, ast.shift());
+          const x = eval_expr_relation(global, env, ast.shift());
+          const y = eval_expr_relation(global, env, ast.shift());
           return x < y;
         }
         case ">": {
-          const x = eval_expr(global, env, ast.shift());
-          const y = eval_expr(global, env, ast.shift());
+          const x = eval_expr_relation(global, env, ast.shift());
+          const y = eval_expr_relation(global, env, ast.shift());
           return x > y;
         }
         case "<=": {
-          const x = eval_expr(global, env, ast.shift());
-          const y = eval_expr(global, env, ast.shift());
+          const x = eval_expr_relation(global, env, ast.shift());
+          const y = eval_expr_relation(global, env, ast.shift());
           return x <= y;
         }
         case ">=": {
-          const x = eval_expr(global, env, ast.shift());
-          const y = eval_expr(global, env, ast.shift());
+          const x = eval_expr_relation(global, env, ast.shift());
+          const y = eval_expr_relation(global, env, ast.shift());
           return x >= y;
         }
         case "direct":
-          return eval_expr(global, env, ast.shift());
+          return eval_expr_relation(global, env, ast.shift());
       }
       break;
     }
@@ -223,6 +223,49 @@ function eval_expr(global, env, ast) {
       return eval_call_func(global, env, ast);
     }
     case "VARIABLE":
+    case "INT":
+    case "STRING":
+    case "BOOL": {
+      return token.value;
+    }
+  }
+}
+
+function eval_expr_relation(global, env, ast) {
+  const token = (Array.isArray(ast)) ? ast.shift() : ast;
+
+  switch (token.type) {
+    case "add": {
+      const x = eval_expr_relation(global, env, ast.shift());
+      const y = eval_expr_relation(global, env, ast.shift());
+      return x + y;
+    }
+    case "sub": {
+      const x = eval_expr_relation(global, env, ast.shift());
+      const y = eval_expr_relation(global, env, ast.shift());
+      return x - y;
+    }
+    case "mul": {
+      const x = eval_expr_relation(global, env, ast.shift());
+      const y = eval_expr_relation(global, env, ast.shift());
+      return x * y;
+    }
+    case "div": {
+      const x = eval_expr_relation(global, env, ast.shift());
+      const y = eval_expr_relation(global, env, ast.shift());
+      return x / y;
+    }
+    case "mod": {
+      const x = eval_expr_relation(global, env, ast.shift());
+      const y = eval_expr_relation(global, env, ast.shift());
+      return x % y;
+    }
+    case "call_func": {
+      return eval_call_func(global, env, ast);
+    }
+    case "VARIABLE": {
+      return Functions.var_from_variable(env, token.value);
+    }
     case "INT":
     case "STRING":
     case "BOOL": {
