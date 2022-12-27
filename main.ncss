@@ -14,4 +14,10 @@
 
     --arr: 0 10 20 30 40 50;
     content: "--arr[2] is " + arr(--arr 2);
+
+    sub: "hi";
+}
+
+#sub[--arg] {
+    content: "--arg is " + var(--arg);
 }

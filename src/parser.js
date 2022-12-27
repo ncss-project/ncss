@@ -55,8 +55,8 @@ export function parse(sc) {
 
   const funcargs = () => {
     const _funcargs = [];
-    while (match("IDENT")) {
-      _funcargs.push([take("IDENT")]);
+    while (match("VARIABLE")) {
+      _funcargs.push([take("VARIABLE")]);
       if (match("COMMA")) {
         take("COMMA");
       }

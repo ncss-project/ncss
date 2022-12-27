@@ -18,11 +18,11 @@ export class Evaluator {
     };
 
     eval_program(global, ast);
-    if (global.cmd_table.main) {
-      global.cmd_table["main"]();
-    } else {
+
+    if (!global.cmd_table.main)
       throw new Error("Syntax Error:'main' function is not defined.");
-    }
+
+    global.cmd_table.mainP();
     return global;
   }
 }
@@ -42,7 +42,7 @@ function eval_cmddef(global, ast) {
   const name = ast.shift()[0].value;
   const args = ast.shift();
 
-  global.cmd_table[name] = (args_values) => {
+  global.cmd_table[name] = (_, args_values) => {
     const env = {
       var_table: {},
     };
