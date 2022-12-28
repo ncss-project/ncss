@@ -18,10 +18,7 @@ export function parse(sc) {
       r |= token != undefined && token.type === type[i];
     }
     if (!r) {
-      throw new Error(
-        "Syntax Error:expect.type=" + type + ", actual.type=" + token.type +
-        ", token.value=" + token.value,
-      );
+      throw new Error(`Syntax Error: expect.type='${type}', actual.type='${token.type}', token.value='${token.value}'`);
     }
 
     sc.next();

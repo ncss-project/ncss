@@ -1,4 +1,4 @@
-import { deep_copy } from "./util.js";
+import * as Util from "./util.js";
 import Commands from "./commands.js";
 import Functions from "./functions.js";
 
@@ -21,7 +21,7 @@ export class Evaluator {
     eval_program(global, ast);
 
     if (!global.cmd_table.main)
-      throw new Error("Syntax Error:'main' function is not defined.");
+      throw new Error("Syntax Error: 'main' function is not defined.");
 
     global.cmd_table.main();
     return global;
@@ -49,11 +49,11 @@ function eval_cmddef(global, ast) {
       result: [],
     };
     for (let i = 0; i < args.length; i++) {
-      env.var_table[args[i][0].value] = args_values[i];
+      Util.set_value(env, args[i][0].value, args_values[i], true);
     }
 
     try {
-      eval_statementlist(global, env, deep_copy(ast).shift());
+      eval_statementlist(global, env, Util.deep_copy(ast).shift());
     } catch (err) {
       if (err instanceof ReturnError) {
         return env.result;
@@ -90,14 +90,14 @@ function eval_statement(global, env, ast) {
       const name = ast.shift()[0].value;
 
       if (name in env.var_table)
-        throw new Error(`Variable Error: '${name}' Variable Cannot redeclare.`)
+        throw new Error(`Variable Error: '${name}' cannot redeclare.`)
 
       const _values = [];
       while (ast.length > 0) {
         _values.push(eval_expr(global, env, ast.shift()));
       }
-
-      env.var_table[name] = _values.length === 1 ? _values[0] : _values;
+      const value = _values.length === 1 ? _values[0] : _values;
+      Util.set_value(env, name, value, true);
       break;
     }
     case "BREAK": {
@@ -119,7 +119,7 @@ function eval_call_cmd(global, env, ast) {
   const mapped_args = args.map((t) => eval_expr(global, env, t));
 
   if (!(name in global.cmd_table))
-    throw new Error(`Syntax Error: '${name}' Function is not defined.`)
+    throw new Error(`Syntax Error: '${name}' function is not defined.`)
 
   return global.cmd_table[name](env, mapped_args);
 }
@@ -134,7 +134,7 @@ function eval_call_return(global, env, ast) {
 function eval_call_func(global, env, ast) {
   const name = ast.shift().value;
   const args = ast.shift();
-  const mapped_args = args.map((t) => eval_expr(global, deep_copy(env), t));
+  const mapped_args = args.map((t) => eval_expr(global, Util.deep_copy(env), t));
 
   return global.func_table[name](env, mapped_args);
 }
@@ -159,7 +159,7 @@ function eval_if(global, env, ast) {
 function eval_while(global, env, ast) {
   try {
     while (true) {
-      const cloned_ast = deep_copy(ast);
+      const cloned_ast = Util.deep_copy(ast);
       const guard = eval_relation(global, env, cloned_ast.shift());
       if (!guard) {
         break;
@@ -256,7 +256,7 @@ function eval_expr(global, env, ast) {
       return token.value;
     }
     case "IDENT": {
-      throw new Error(`Syntax Error: '${token.value}' Function must have parentheses.`)
+      throw new Error(`Syntax Error: '${token.value}' function must have parentheses.`)
     }
     default: {
       throw new Error(`ncss Error: ncss program is wrong. token=${JSON.stringify(token)}`);
@@ -297,7 +297,8 @@ function eval_expr_relation(global, env, ast) {
       return eval_call_func(global, env, ast);
     }
     case "VARIABLE": {
-      const value = Functions.var_from_name(env, token.value);
+      const name = token.value;
+      const value = Util.get_value(env, name);
       if (Array.isArray(value))
         throw new Error(`Comparison Error: '${token.value}' Array cannot be compared.`)
 
@@ -309,7 +310,7 @@ function eval_expr_relation(global, env, ast) {
       return token.value;
     }
     case "IDENT": {
-      throw new Error(`Syntax Error: '${token.value}' Function must have parentheses.`)
+      throw new Error(`Syntax Error: '${token.value}' function must have parentheses.`)
     }
     default: {
       throw new Error(`ncss Error: ncss program is wrong. token=${JSON.stringify(token)}`);

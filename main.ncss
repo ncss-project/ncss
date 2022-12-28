@@ -34,6 +34,9 @@
 
 #sub[--arg] {
     content: "--arg is " + var(--arg);
+    --arr: 1, 2, 3;
+    transform: --arr 1;
+    content: "--arr is " + var(--arr);
     return: "return content" 123;
     content: "ok";
 }
