@@ -2,11 +2,11 @@ import * as Util from "../util.js";
 import { Errors } from "./error.js";
 
 class Commands {
-    content(global, text) {
+    content(global: any, text: any) {
         global.stdout.push(text);
     }
 
-    transform(env, args) {
+    transform(env: any, args: any) {
         Util.arg_length_check_more(args, 1);
 
         const name = args.shift();
@@ -23,13 +23,13 @@ class Commands {
 
     }
 
-    result(env, args) {
+    result(env: any, args: any) {
         Util.arg_length_check(args, env.result.length);
         if (args.length === 1) {
             Util.set_value(env, args[0], env.result[0], true);
 
         } else {
-            args.map((arg, i) => {
+            args.map((arg: any, i: any) => {
                 if (!(arg in env.var_table)) {
                     Util.set_value(env, arg, env.result[i], true);
                 }

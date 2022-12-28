@@ -1,6 +1,6 @@
 import { Errors } from "./components/error.js";
 
-export function is_exist(env, name, output_error = true) {
+export function is_exist(env: any, name: any, output_error = true) {
   if (name in env.var_table) {
     return true
   } else if (!output_error) {
@@ -10,7 +10,7 @@ export function is_exist(env, name, output_error = true) {
   }
 }
 
-export function is_same_type(env, name, value) {
+export function is_same_type(env: any, name: any, value: any) {
   const _value = get_value(env, name);
   const vartype_list = [_value, value].map((v) => { return type(v) });
 
@@ -21,38 +21,38 @@ export function is_same_type(env, name, value) {
   }
 }
 
-export function type(value) {
+export function type(value: any) {
   if (Array.isArray(value))
     return "ARRAY";
 
-  else if ((/^[-]?\d+\.[\d]+$/).test(value))
+  else if ((((/^[-]?\d+\.[\d]+$/))).test(value))
     return "INT";
 
-  else if ((/^[-]?\d+$/).test(value))
+  else if ((((/^[-]?\d+$/))).test(value))
     return "INT";
 
-  else if ((/"(.*)"/).test(value))
+  else if ((((/"(.*)"/))).test(value))
     return "STRING";
 
   else
     throw new Error(Errors.ncss.unknown(`Could not determine the type. ${value}`));
 }
 
-export function type_match(env, name, req_type, output_error = true) {
+export function type_match(env: any, name: any, req_type: any, output_error = true) {
   const actual_type = type(get_value(env, name));
   if (req_type === actual_type) return true;
   else if (!output_error) return false;
   else throw new Error(Errors.variable.type_mismatch(name, actual_type, req_type));
 }
 
-export function type_match_excep(env, name, req_type, output_error = true) {
+export function type_match_excep(env: any, name: any, req_type: any, output_error = true) {
   const actual_type = type(get_value(env, name));
   if (req_type !== actual_type) return true;
   else if (!output_error) return false;
   else throw new Error(Errors.variable.type_mismatch(name, actual_type, req_type));
 }
 
-export function arg_length_check(args, length) {
+export function arg_length_check(args: any, length: any) {
   if (args.length === length) {
     return true;
   } else {
@@ -60,7 +60,7 @@ export function arg_length_check(args, length) {
   }
 }
 
-export function arg_length_check_less(args, length) {
+export function arg_length_check_less(args: any, length: any) {
   if (args.length < length) {
     return true;
   } else {
@@ -68,7 +68,7 @@ export function arg_length_check_less(args, length) {
   }
 }
 
-export function arg_length_check_more(args, length) {
+export function arg_length_check_more(args: any, length: any) {
   if (args.length > length) {
     return true;
   } else {
@@ -76,12 +76,12 @@ export function arg_length_check_more(args, length) {
   }
 }
 
-export function get_value(env, name) {
+export function get_value(env: any, name: any) {
   is_exist(env, name);
   return env.var_table[name];
 }
 
-export function set_value(env, name, value, force = false) {
+export function set_value(env: any, name: any, value: any, force = false) {
   const isExist = is_exist(env, name, !force);
   if (!force && isExist) {
     type_match(env, name, type(value));
@@ -89,10 +89,10 @@ export function set_value(env, name, value, force = false) {
   env.var_table[name] = value;
 }
 
-export function $(type, value = null) {
+export function $(type: any, value = null) {
   return { type: type, value: value };
 }
 
-export function deep_copy(xs) {
+export function deep_copy(xs: any) {
   return JSON.parse(JSON.stringify(xs));
 }
