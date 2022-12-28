@@ -1,4 +1,5 @@
-import * as Util from "./util.js";
+import * as Util from "../util.js";
+import { Errors } from "./error.js";
 
 class Functions {
     var(env, args) {
@@ -16,7 +17,7 @@ class Functions {
         Util.type_match(env, name, "Array");
 
         if (value.length <= index)
-            throw new Error(`Array Error: '${name}' Index out of range. req: ${index}, max: ${value.length - 1}`);
+            throw new Error(Errors.variable.index_out_of_range(name, index, value.length));
 
         return value[index];
     }

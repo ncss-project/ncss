@@ -1,3 +1,4 @@
+import { Errors } from "./components/error.js";
 import { $ } from "./util.js";
 
 export class Scanner {
@@ -127,7 +128,7 @@ export class Scanner {
             idx += 1;
             while (text[idx - 1] !== "*" || text[idx] !== "/") {
               idx += 1;
-              if (text.length <= idx) throw new Error("Comment Error: Comment is not closed.");
+              if (text.length <= idx) throw new Error(Errors.syntax.comment_is_not_closed());
             }
             idx += 1;
           } else {

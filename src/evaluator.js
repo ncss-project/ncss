@@ -1,6 +1,7 @@
 import * as Util from "./util.js";
-import Commands from "./commands.js";
-import Functions from "./functions.js";
+import Commands from "./components/commands.js";
+import Functions from "./components/functions.js";
+import { Errors } from "./components/error.js";
 
 export class Evaluator {
   apply(ast) {
@@ -21,7 +22,7 @@ export class Evaluator {
     eval_program(global, ast);
 
     if (!global.cmd_table.main)
-      throw new Error("Syntax Error: 'main' function is not defined.");
+      throw new Error(Errors.syntax.function_is_defined("main"));
 
     global.cmd_table.main();
     return global;
@@ -90,7 +91,7 @@ function eval_statement(global, env, ast) {
       const name = ast.shift()[0].value;
 
       if (name in env.var_table)
-        throw new Error(`Variable Error: '${name}' cannot redeclare.`)
+        throw new Error(Errors.variable.cannot_redeclare(name));
 
       const _values = [];
       while (ast.length > 0) {
@@ -108,7 +109,7 @@ function eval_statement(global, env, ast) {
       throw new ReturnError();
     }
     default: {
-      throw new Error("Unkown Error");
+      throw new Error(Errors.ncss.unknown(`token='${JSON.stringify(token)}'`));
     }
   }
 }
@@ -119,7 +120,7 @@ function eval_call_cmd(global, env, ast) {
   const mapped_args = args.map((t) => eval_expr(global, env, t));
 
   if (!(name in global.cmd_table))
-    throw new Error(`Syntax Error: '${name}' function is not defined.`)
+    throw new Error(Errors.syntax.function_is_defined(name));
 
   return global.cmd_table[name](env, mapped_args);
 }
@@ -256,10 +257,10 @@ function eval_expr(global, env, ast) {
       return token.value;
     }
     case "IDENT": {
-      throw new Error(`Syntax Error: '${token.value}' function must have parentheses.`)
+      throw new Error(Errors.syntax.function_must_have_paren(token.value));
     }
     default: {
-      throw new Error(`ncss Error: ncss program is wrong. token=${JSON.stringify(token)}`);
+      throw new Error(Errors.ncss.unknown(`token='${JSON.stringify(token)}'`));
     }
   }
 }
@@ -299,8 +300,9 @@ function eval_expr_relation(global, env, ast) {
     case "VARIABLE": {
       const name = token.value;
       const value = Util.get_value(env, name);
-      if (Array.isArray(value))
-        throw new Error(`Comparison Error: '${token.value}' Array cannot be compared.`)
+      const type_ = Util.type(value);
+      if (type_ === "Array")
+        throw new Error(Errors.comparison.cannnot_compared(name, type_));
 
       return value;
     }
@@ -310,10 +312,10 @@ function eval_expr_relation(global, env, ast) {
       return token.value;
     }
     case "IDENT": {
-      throw new Error(`Syntax Error: '${token.value}' function must have parentheses.`)
+      throw new Error(Errors.syntax.function_must_have_paren(token.value));
     }
     default: {
-      throw new Error(`ncss Error: ncss program is wrong. token=${JSON.stringify(token)}`);
+      throw new Error(Errors.ncss.unknown(`token='${JSON.stringify(token)}'`));
     }
   }
 }

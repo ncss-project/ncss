@@ -1,4 +1,5 @@
 import { $ } from "./util.js";
+import { Errors } from "./components/error.js";
 
 export function parse(sc) {
   const match = (...type) => {
@@ -18,7 +19,7 @@ export function parse(sc) {
       r |= token != undefined && token.type === type[i];
     }
     if (!r) {
-      throw new Error(`Syntax Error: expect.type='${type}', actual.type='${token.type}', token.value='${token.value}'`);
+      throw new Error(Errors.syntax.syntax_is_wrong(type, token.type, token.value));
     }
 
     sc.next();

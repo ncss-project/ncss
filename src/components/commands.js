@@ -1,4 +1,5 @@
-import * as Util from "./util.js";
+import * as Util from "../util.js";
+import { Errors } from "./error.js";
 
 class Commands {
     syscall_stdout(global, text) {
@@ -13,7 +14,7 @@ class Commands {
             Util.set_value(env, name, args);
         } else {
             if (args.length !== 1)
-                throw new Error(`Type Error: '${name}' Array Cannot assign to Variable.`);
+                throw new Error(Errors.variable.type_mismatch(name, "Array", "Variable"));
 
             Util.set_value(env, name, args[0])
         }
