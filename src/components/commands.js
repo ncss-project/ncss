@@ -2,7 +2,7 @@ import * as Util from "../util.js";
 import { Errors } from "./error.js";
 
 class Commands {
-    syscall_stdout(global, text) {
+    content(global, text) {
         global.stdout.push(text);
     }
 
@@ -10,11 +10,13 @@ class Commands {
         Util.arg_length_check_more(args, 1);
 
         const name = args.shift();
-        if (Util.type_match(env, name, "Array", false)) {
+        if (Util.type_match(env, name, "ARRAY", false)) {
             Util.set_value(env, name, args);
         } else {
-            if (args.length !== 1)
-                throw new Error(Errors.variable.type_mismatch(name, "Array", "Variable"));
+            if (args.length !== 1) {
+                const type_ = Util.type(Util.get_value(env, name));
+                throw new Error(Errors.variable.type_mismatch(name, "ARRAY", type_));
+            }
 
             Util.set_value(env, name, args[0])
         }

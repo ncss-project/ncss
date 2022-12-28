@@ -112,7 +112,7 @@ export function parse(sc) {
 
   const call_cmd_args = () => {
     const _args = [];
-    while (match("INT", "STRING", "BOOL", "IDENT", "VARIABLE")) {
+    while (match("INT", "FLOAT", "STRING", "BOOL", "IDENT", "VARIABLE")) {
       _args.push(expr());
       if (match("COMMA")) {
         take("COMMA");
@@ -135,7 +135,7 @@ export function parse(sc) {
 
   const call_func_args = () => {
     const _args = [];
-    while (match("INT", "STRING", "BOOL", "IDENT", "VARIABLE")) {
+    while (match("INT", "FLOAT", "STRING", "BOOL", "IDENT", "VARIABLE")) {
       _args.push(expr());
       if (match("COMMA")) {
         take("COMMA");
@@ -152,7 +152,7 @@ export function parse(sc) {
     _assign.push(_colon);
     _assign.push([name]);
 
-    while (match("INT", "STRING", "BOOL", "IDENT", "VARIABLE")) {
+    while (match("INT", "FLOAT", "STRING", "BOOL", "IDENT", "VARIABLE")) {
       _assign.push(expr());
       if (match("COMMA")) {
         take("COMMA");
@@ -253,7 +253,7 @@ export function parse(sc) {
   }
 
   const literal = () => {
-    const _literal = take("INT", "STRING", "BOOL", "IDENT", "VARIABLE");
+    const _literal = take("INT", "FLOAT", "STRING", "BOOL", "IDENT", "VARIABLE");
     if (_literal.type == "IDENT" && match("PARENTHES_OPEN")) {
       return call_func(_literal);
     }

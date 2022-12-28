@@ -22,11 +22,20 @@ export function is_same_type(env, name, value) {
 }
 
 export function type(value) {
-  if (Array.isArray(value)) {
-    return "Array";
-  } else {
-    return "Variable";
-  }
+  if (Array.isArray(value))
+    return "ARRAY";
+
+  else if ((/^[-]?\d+\.[\d]+$/).test(value))
+    return "INT";
+
+  else if ((/^[-]?\d+$/).test(value))
+    return "INT";
+
+  else if ((/"(.*)"/).test(value))
+    return "STRING";
+
+  else
+    throw new Error(Errors.ncss.unknown(`Could not determine the type. ${value}`));
 }
 
 export function type_match(env, name, req_type, output_error = true) {
@@ -73,7 +82,10 @@ export function get_value(env, name) {
 }
 
 export function set_value(env, name, value, force = false) {
-  is_exist(env, name, !force);
+  const isExist = is_exist(env, name, !force);
+  if (!force && isExist) {
+    type_match(env, name, type(value));
+  }
   env.var_table[name] = value;
 }
 

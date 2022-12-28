@@ -59,7 +59,10 @@ export class Scanner {
           if ((/^(\-\-)/).test(word))
             return $("VARIABLE", word);
 
-          if ((/^\d+/).test(word))
+          else if ((/^[-]?\d+\.[\d]+$/).test(word))
+            return $("FLOAT", parseFloat(word));
+
+          else if ((/^[-]?\d+$/).test(word))
             return $("INT", parseInt(word));
 
           else if ((/"(.*)"/).test(word))
@@ -84,7 +87,8 @@ export class Scanner {
           }
           str += '"';
           idx += 1;
-          tokens.push(tokenize(str));
+          const a = tokenize(str);
+          tokens.push(a);
         } else if ((/[=<>!]/).test(x)) {
           let op = text[idx];
           idx += 1;
@@ -96,7 +100,7 @@ export class Scanner {
           tokens.push(tokenize(op));
         } else if ((/\d/).test(x)) {
           let num = "";
-          for (; (/\d/).test(text[idx]); idx++) {
+          for (; (/[.\d]/).test(text[idx]); idx++) {
             num += text[idx];
           }
           tokens.push(tokenize(num));
@@ -115,6 +119,13 @@ export class Scanner {
             let latter = "--";
             idx += 1;
             for (; (/[a-zA-Z0-9_\-]/).test(text[idx]); idx++) {
+              latter += text[idx];
+            }
+            tokens.push(tokenize(latter));
+          } else if ((/[\d]/).test(text[idx])) {
+            let latter = `-${text[idx]}`;
+            idx += 1;
+            for (; (/[.\d]/).test(text[idx]); idx++) {
               latter += text[idx];
             }
             tokens.push(tokenize(latter));

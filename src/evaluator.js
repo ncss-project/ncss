@@ -7,7 +7,7 @@ export class Evaluator {
   apply(ast) {
     const global = {
       cmd_table: {
-        content: (env, args) => Commands.syscall_stdout(global, args[0]),
+        content: (env, args) => Commands.content(global, args[0]),
         transform: (env, args) => Commands.transform(env, args),
         result: (env, args) => Commands.result(env, args),
       },
@@ -252,6 +252,7 @@ function eval_expr(global, env, ast) {
     }
     case "VARIABLE":
     case "INT":
+    case "FLOAT":
     case "STRING":
     case "BOOL": {
       return token.value;
@@ -301,12 +302,13 @@ function eval_expr_relation(global, env, ast) {
       const name = token.value;
       const value = Util.get_value(env, name);
       const type_ = Util.type(value);
-      if (type_ === "Array")
+      if (type_ === "ARRAY")
         throw new Error(Errors.comparison.cannnot_compared(name, type_));
 
       return value;
     }
     case "INT":
+    case "FLOAT":
     case "STRING":
     case "BOOL": {
       return token.value;

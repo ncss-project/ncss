@@ -1,7 +1,7 @@
 #main {
     /* this is comment */
-    --num: 4;
-    transform: --num 6;
+    --num: 4.8;
+    transform: --num var(--num) + 2.1;
     content: "--num is " + var(--num);
 
     .if[--num>=5] {
@@ -24,10 +24,11 @@
     }
 
     --arr: 0 10 20 30 40 50;
-    content: "--arr[2] is "+arr(--arr 2);
+    content: "--arr[2] is "+ arr(--arr 2);
 
     sub: "hi";
     result: --res-1 --res-2;
+    content: "result " + "aaa";
     content: "res 1 : " + var(--res-1);
     content: "res 2 : " + var(--res-2);
 }
