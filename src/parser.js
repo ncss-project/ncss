@@ -79,11 +79,15 @@ export function parse(sc) {
       _statement.push(call_while());
     } else if (match("IF")) {
       _statement.push(call_if());
-    } else if (match("BREAK")) {
-      _statement.push([take("BREAK")]);
-      take("SEMICOLON");
     } else if (match("RETURN")) {
-      _statement.push([take("RETURN"), expr()]);
+      const name = take("RETURN");
+      take("COLON");
+      _statement.push([name, call_cmd_args()]);
+      take("SEMICOLON");
+    } else if (match("BREAK")) {
+      const name = take("BREAK");
+      take("COLON");
+      _statement.push([name, take("STRING")]);
       take("SEMICOLON");
     } else if (match("IDENT")) {
       const name = take("IDENT");

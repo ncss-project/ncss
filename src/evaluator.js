@@ -8,6 +8,7 @@ export class Evaluator {
       cmd_table: {
         content: (env, args) => Commands.syscall_stdout(global, args[0]),
         transform: (env, args) => Commands.transform(env, args),
+        result: (env, args) => Commands.result(env, args),
       },
       func_table: {
         var: (env, args) => Functions.var(env, args),
@@ -45,6 +46,7 @@ function eval_cmddef(global, ast) {
   global.cmd_table[name] = (_, args_values) => {
     const env = {
       var_table: {},
+      result: [],
     };
     for (let i = 0; i < args.length; i++) {
       env.var_table[args[i][0].value] = args_values[i];
@@ -73,13 +75,16 @@ function eval_statement(global, env, ast) {
 
   switch (token.type) {
     case "call_cmd": {
-      return eval_call_cmd(global, env, ast);
+      env.result = eval_call_cmd(global, env, ast);
+      break;
     }
     case "IF": {
-      return eval_if(global, env, ast);
+      eval_if(global, env, ast);
+      break;
     }
     case "WHILE": {
-      return eval_while(global, env, ast);
+      eval_while(global, env, ast);
+      break;
     }
     case "ASSIGN": {
       const name = ast.shift()[0].value;
@@ -93,17 +98,19 @@ function eval_statement(global, env, ast) {
       }
 
       env.var_table[name] = _values.length === 1 ? _values[0] : _values;
-      return env.var_table[name];
+      break;
     }
     case "BREAK": {
       throw new BreakError();
     }
     case "RETURN": {
-      env.result = eval_expr(global, env, ast.shift());
+      env.result = eval_call_return(global, env, ast);
       throw new ReturnError();
     }
+    default: {
+      throw new Error("Unkown Error");
+    }
   }
-  throw new Error("Unkown Error");
 }
 
 function eval_call_cmd(global, env, ast) {
@@ -111,7 +118,17 @@ function eval_call_cmd(global, env, ast) {
   const args = ast.shift();
   const mapped_args = args.map((t) => eval_expr(global, env, t));
 
+  if (!(name in global.cmd_table))
+    throw new Error(`Syntax Error: '${name}' Function is not defined.`)
+
   return global.cmd_table[name](env, mapped_args);
+}
+
+function eval_call_return(global, env, ast) {
+  const args = ast.shift();
+  const mapped_args = args.map((t) => eval_expr(global, env, t));
+
+  return mapped_args;
 }
 
 function eval_call_func(global, env, ast) {
@@ -238,6 +255,12 @@ function eval_expr(global, env, ast) {
     case "BOOL": {
       return token.value;
     }
+    case "IDENT": {
+      throw new Error(`Syntax Error: '${token.value}' Function must have parentheses.`)
+    }
+    default: {
+      throw new Error(`ncss Error: ncss program is wrong. token=${JSON.stringify(token)}`);
+    }
   }
 }
 
@@ -274,7 +297,7 @@ function eval_expr_relation(global, env, ast) {
       return eval_call_func(global, env, ast);
     }
     case "VARIABLE": {
-      const value = Functions.var_from_variable(env, token.value);
+      const value = Functions.var_from_name(env, token.value);
       if (Array.isArray(value))
         throw new Error(`Comparison Error: '${token.value}' Array cannot be compared.`)
 
@@ -284,6 +307,12 @@ function eval_expr_relation(global, env, ast) {
     case "STRING":
     case "BOOL": {
       return token.value;
+    }
+    case "IDENT": {
+      throw new Error(`Syntax Error: '${token.value}' Function must have parentheses.`)
+    }
+    default: {
+      throw new Error(`ncss Error: ncss program is wrong. token=${JSON.stringify(token)}`);
     }
   }
 }

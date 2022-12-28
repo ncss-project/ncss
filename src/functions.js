@@ -8,7 +8,7 @@ class Functions {
         return env.var_table[args[0]];
     }
 
-    var_from_variable(env, name) {
+    var_from_name(env, name) {
         if (!(name in env.var_table))
             throw new Error(`Variable Error: '${name}' variable is undefined.`);
 
@@ -22,7 +22,7 @@ class Functions {
 
         const name = args.shift();
         const index = args.shift();
-        const value = this.var_from_variable(env, name);
+        const value = this.var_from_name(env, name);
 
         if (!Array.isArray(value))
             throw new Error(`Array Error: '${name}' is not Array.`);
