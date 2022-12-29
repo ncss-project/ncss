@@ -1,32 +1,26 @@
-import { $ } from "./util.js";
-import { Errors } from "./components/error.js";
+import { $ } from "./components/util";
+import { Errors } from "./components/error";
+import { SCTypeName, Token } from "./components/types";
+import { Scanner } from "./scanner";
 
-export function parse(sc) {
-  const match = (...type) => {
-    let r = false;
+export function parse(sc: Scanner) {
+  const match = (...type: SCTypeName[]): boolean => {
     const token = sc.peek();
-    for (let i = 0; i < type.length; i++) {
-      r |= token != undefined && token.type === type[i];
-    }
-
-    return r;
+    return token !== undefined && type.indexOf(token.type) !== -1;
   }
 
-  const take = (...type) => {
-    let r = false;
+  const take = (...type: SCTypeName[]): Token => {
     const token = sc.peek();
-    for (let i = 0; i < type.length; i++) {
-      r |= token != undefined && token.type === type[i];
-    }
-    if (!r) {
+    if (token.value === null)
+      throw new Error(Errors.ncss.unknown(`token='${JSON.stringify(token)}'`));
+    else if (!(token !== undefined && type.indexOf(token.type) !== -1))
       throw new Error(Errors.syntax.syntax_is_wrong(type, token.type, token.value));
-    }
 
     sc.next();
     return token;
   }
 
-  const program = () => {
+  const program = (): any[] => {
     const _program = [];
     while (match("FUNCDEF")) {
       _program.push(funcdef());
@@ -34,7 +28,7 @@ export function parse(sc) {
     return _program;
   }
 
-  const funcdef = () => {
+  const funcdef = (): any[] => {
     const _funcdef = [];
     _funcdef.push(take("FUNCDEF"));
     _funcdef.push([take("IDENT")]);
@@ -51,7 +45,7 @@ export function parse(sc) {
     return _funcdef;
   }
 
-  const funcargs = () => {
+  const funcargs = (): any[] => {
     const _funcargs = [];
     while (match("VARIABLE")) {
       _funcargs.push([take("VARIABLE")]);
@@ -63,7 +57,7 @@ export function parse(sc) {
     return _funcargs;
   }
 
-  const statlist = () => {
+  const statlist = (): any[] => {
     const _statlist = [];
     for (let smt = statement(); 0 < smt.length; smt = statement()) {
       _statlist.push(smt);
@@ -71,7 +65,7 @@ export function parse(sc) {
     return _statlist;
   }
 
-  const statement = () => {
+  const statement = (): any[] => {
     const _statement = [];
     if (match("WHILE")) {
       _statement.push(call_while());
@@ -100,7 +94,7 @@ export function parse(sc) {
     return _statement;
   }
 
-  const call_cmd = (name) => {
+  const call_cmd = (name: Token) => {
     const _funcall = [];
     _funcall.push($("call_cmd"));
     _funcall.push(name);
@@ -110,7 +104,7 @@ export function parse(sc) {
     return _funcall;
   }
 
-  const call_cmd_args = () => {
+  const call_cmd_args = (): any[] => {
     const _args = [];
     while (match("INT", "FLOAT", "STRING", "BOOL", "IDENT", "VARIABLE")) {
       _args.push(expr());
@@ -122,7 +116,7 @@ export function parse(sc) {
     return _args;
   }
 
-  const call_func = (name) => {
+  const call_func = (name: Token): any[] => {
     const _funcall = [];
     _funcall.push($("call_func"));
     _funcall.push(name);
@@ -133,7 +127,7 @@ export function parse(sc) {
     return _funcall;
   }
 
-  const call_func_args = () => {
+  const call_func_args = (): any[] => {
     const _args = [];
     while (match("INT", "FLOAT", "STRING", "BOOL", "IDENT", "VARIABLE")) {
       _args.push(expr());
@@ -145,7 +139,7 @@ export function parse(sc) {
     return _args;
   }
 
-  const assign = (name) => {
+  const assign = (name: Token): any[] => {
     const _assign = [];
     const _colon = take("COLON");
     _colon.type = "ASSIGN";
@@ -162,7 +156,7 @@ export function parse(sc) {
     return _assign;
   }
 
-  const call_while = () => {
+  const call_while = (): any[] => {
     const _while = [];
     _while.push(take("WHILE"));
     take("SQ_PARENTHES_OPEN");
@@ -171,10 +165,11 @@ export function parse(sc) {
     take("BEGIN");
     _while.push(statlist());
     take("END");
+
     return _while;
   }
 
-  const call_if = () => {
+  const call_if = (): any[] => {
     const _if = [];
     _if.push(take("IF"));
     take("SQ_PARENTHES_OPEN");
@@ -207,7 +202,7 @@ export function parse(sc) {
     }
   }
 
-  const expr = () => {
+  const expr = (): any[] => {
     let _expr = term();
 
     while (match("OP_ADD")) {
@@ -223,7 +218,7 @@ export function parse(sc) {
     return _expr;
   }
 
-  const term = () => {
+  const term = (): any[] => {
     let _term = factor();
     while (match("OP_MUL")) {
       switch (take("OP_MUL").value) {
@@ -241,7 +236,7 @@ export function parse(sc) {
     return _term;
   }
 
-  const factor = () => {
+  const factor = (): any[] => {
     if (match("PARENTHES_OPEN")) {
       take("PARENTHES_OPEN");
       const _factor = expr();
@@ -252,7 +247,7 @@ export function parse(sc) {
     return literal();
   }
 
-  const literal = () => {
+  const literal = (): any[] => {
     const _literal = take("INT", "FLOAT", "STRING", "BOOL", "IDENT", "VARIABLE");
     if (_literal.type == "IDENT" && match("PARENTHES_OPEN")) {
       return call_func(_literal);

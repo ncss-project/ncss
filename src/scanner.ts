@@ -1,9 +1,12 @@
-import { Errors } from "./components/error.js";
-import { $ } from "./util.js";
+import { Errors } from "./components/error";
+import { Token } from "./components/types";
+import { $ } from "./components/util";
 
 export class Scanner {
-  constructor(text) {
-    const tokenize = (word) => {
+  pos: number;
+  tokens: Token[];
+  constructor(text: string) {
+    const tokenize = (word: string) => {
       switch (word) {
         case "#":
           return $("FUNCDEF", word);
@@ -52,33 +55,38 @@ export class Scanner {
         case ",":
           return $("COMMA", word);
         case "true":
+          // @ts-expect-error TS(2345): Argument of type 'true' is not assignable to param... Remove this comment to see the full error message
           return $("BOOL", true);
         case "false":
+          // @ts-expect-error TS(2345): Argument of type 'false' is not assignable to para... Remove this comment to see the full error message
           return $("BOOL", false);
         default:
-          if ((/^(\-\-)/).test(word))
+          if (/^(\-\-)/.test(word))
             return $("VARIABLE", word);
 
-          else if ((/^[-]?\d+\.[\d]+$/).test(word))
+          else if (/^[-]?\d+\.[\d]+$/.test(word))
             return $("FLOAT", parseFloat(word));
 
-          else if ((/^[-]?\d+$/).test(word))
+          else if (/^[-]?\d+$/.test(word))
             return $("INT", parseInt(word));
 
-          else if ((/"(.*)"/).test(word))
-            return $("STRING", word.match(/"(.*)"/)[1]);
+          else if (/^"(.*)"$/.test(word)) {
+            const w1 = word.slice(1);
+            const w2 = w1.slice(0, -1);
+            return $("STRING", w2);
+          }
 
           else
             return $("IDENT", word);
       }
     };
-    const split = (text) => {
+    const split = (text: string): Token[] => {
       const tokens = [];
       let idx = 0;
       while (idx < text.length) {
         const x = text[idx];
 
-        if ((/["']/).test(x)) {
+        if ((((/["']/))).test(x)) {
           const quotation = x;
           let str = '"';
           idx += 1;
@@ -89,7 +97,7 @@ export class Scanner {
           idx += 1;
           const a = tokenize(str);
           tokens.push(a);
-        } else if ((/[=<>!]/).test(x)) {
+        } else if ((((/[=<>!]/))).test(x)) {
           let op = text[idx];
           idx += 1;
           if (text[idx] === "=") {
@@ -98,16 +106,16 @@ export class Scanner {
           }
 
           tokens.push(tokenize(op));
-        } else if ((/\d/).test(x)) {
+        } else if ((((/\d/))).test(x)) {
           let num = "";
-          for (; (/[.\d]/).test(text[idx]); idx++) {
+          for (; (((/[.\d]/))).test(text[idx]); idx++) {
             num += text[idx];
           }
           tokens.push(tokenize(num));
-        } else if ((/[a-zA-Z\.]/).test(x)) {
+        } else if ((((/[a-zA-Z\.]/))).test(x)) {
           let latter = text[idx];
           idx += 1;
-          for (; (/[a-zA-Z0-9_\-]/).test(text[idx]); idx++) {
+          for (; (((/[a-zA-Z0-9_\-]/))).test(text[idx]); idx++) {
             latter += text[idx];
           }
           tokens.push(tokenize(latter));
@@ -118,14 +126,14 @@ export class Scanner {
           if (text[idx] === "-") {
             let latter = "--";
             idx += 1;
-            for (; (/[a-zA-Z0-9_\-]/).test(text[idx]); idx++) {
+            for (; (((/[a-zA-Z0-9_\-]/))).test(text[idx]); idx++) {
               latter += text[idx];
             }
             tokens.push(tokenize(latter));
-          } else if ((/[\d]/).test(text[idx])) {
+          } else if ((((/[\d]/))).test(text[idx])) {
             let latter = `-${text[idx]}`;
             idx += 1;
-            for (; (/[.\d]/).test(text[idx]); idx++) {
+            for (; (((/[.\d]/))).test(text[idx]); idx++) {
               latter += text[idx];
             }
             tokens.push(tokenize(latter));

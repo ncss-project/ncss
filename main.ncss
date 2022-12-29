@@ -14,30 +14,28 @@
 
     --i: 0;
 
-    .while[--i < 10] {
+    .while[--i < 5] {
         content: "while: " + var(--i);
         transform: --i, var(--i) + 1;
 
-        .if[--i==5] {
+        .if[--i==3] {
             break: "";
         }
     }
 
     --arr: 0 10 20 30 40 50;
     content: "--arr[2] is "+ arr(--arr 2);
+    transform: --arr 1;
+    content: "--arr is "+ var(--arr);
 
     sub: "hi";
     result: --res-1 --res-2;
-    content: "result " + "aaa";
     content: "res 1 : " + var(--res-1);
     content: "res 2 : " + var(--res-2);
 }
 
 #sub[--arg] {
-    content: "--arg is " + var(--arg);
-    --arr: 1, 2, 3;
-    transform: --arr 1;
-    content: "--arr is " + var(--arr);
+    content: "sub function arg is " + var(--arg);
     return: "return content" 123;
-    content: "ok";
+    content: "'return command' is not working.";
 }
