@@ -18,6 +18,7 @@ export class Evaluator {
       },
       var_table: {},
       stdout: [],
+      go_out_func: false,
     };
 
     eval_program(global, ast);
@@ -42,22 +43,16 @@ function eval_cmddef(global: Global, ast: any) {
   const args = ast.shift();
 
   if (name === "main") {
-    global.main = () => {
+    global.main = (): void => {
       const env: Env = {
         var_table: {},
         result: [],
       };
 
-      const ret = eval_statementlist(global, env, Util.deep_copy(ast).shift());
-      console.log("🚀 : ret", ret)
-      if (ret.code === 2) {
-        ret.result = env.result;
-        return ret;
-      }
-      else return ret;
+      eval_statementlist(global, env, Util.deep_copy(ast).shift(), true);
     };
   } else {
-    global.cmd_table[name] = (_: Env, args_values: AllType[]) => {
+    global.cmd_table[name] = (_: Env, args_values: AllType[]): Ret => {
       const env: Env = {
         var_table: {},
         result: [],
@@ -66,22 +61,24 @@ function eval_cmddef(global: Global, ast: any) {
         Util.set_value(env, args[i][0].value, args_values[i], true);
       }
 
-      const ret = eval_statementlist(global, env, Util.deep_copy(ast).shift());
-      if (ret.code === 2) {
-        ret.result = env.result;
-        return ret;
-      }
-      else return ret;
+      return eval_statementlist(global, env, Util.deep_copy(ast).shift(), true);
     };
   }
 }
 
-function eval_statementlist(global: Global, env: Env, ast: any): Ret {
+function eval_statementlist(global: Global, env: Env, ast: any, called_global_func = false): Ret {
+  let ret: Ret = { code: 0, type: "ok" };
   for (let i = 0; i < ast.length; i++) {
-    const ret = eval_statement(global, env, ast[i].shift());
-    if (ret.code !== 0) return ret;
+    ret = eval_statement(global, env, ast[i].shift());
+    if (global.go_out_func && ret.code === 2) {
+      env.result = ret.result;
+      global.go_out_func = false;
+    }
+    else if (ret.code !== 0) break;
   }
-  return { code: 0, type: "ok" };
+
+  if (called_global_func) global.go_out_func = true;
+  return ret;
 }
 
 function eval_statement(global: Global, env: Env, ast: any): Ret {
@@ -89,9 +86,7 @@ function eval_statement(global: Global, env: Env, ast: any): Ret {
 
   switch (token.type) {
     case "call_cmd": {
-      const ret = eval_call_cmd(global, env, ast);
-      if (ret.code === 2) env.result = ret.result;
-      return ret;
+      return eval_call_cmd(global, env, ast);
     }
     case "IF": {
       return eval_if(global, env, ast);
@@ -111,7 +106,7 @@ function eval_statement(global: Global, env: Env, ast: any): Ret {
       }
       const value = _values.length === 1 ? _values[0] : _values;
       Util.set_value(env, name, value, true);
-      break;
+      return { code: 0, type: "ok" };
     }
     case "BREAK": {
       return { code: 1, type: "break" };
@@ -124,7 +119,6 @@ function eval_statement(global: Global, env: Env, ast: any): Ret {
       throw new Error(Errors.ncss.unknown(`token='${JSON.stringify(token)}'`));
     }
   }
-  return { code: 0, type: "ok" };
 }
 
 function eval_call_cmd(global: Global, env: Env, ast: any): Ret {
@@ -138,7 +132,7 @@ function eval_call_cmd(global: Global, env: Env, ast: any): Ret {
   return global.cmd_table[name](env, mapped_args);
 }
 
-function eval_call_return(global: Global, env: Env, ast: any) {
+function eval_call_return(global: Global, env: Env, ast: any): AllType[] {
   const args = ast.shift();
   const mapped_args = args.map((arg: AllType) => eval_expr(global, env, arg));
 
@@ -189,7 +183,7 @@ function eval_while(global: Global, env: Env, ast: any): Ret {
   return ret;
 }
 
-function eval_relation(global: Global, env: Env, ast: any) {
+function eval_relation(global: Global, env: Env, ast: any): AllType {
   const token = (Array.isArray(ast)) ? ast.shift() : ast;
   switch (token.type) {
     case "OP_REL": {
@@ -230,6 +224,7 @@ function eval_relation(global: Global, env: Env, ast: any) {
       break;
     }
   }
+  throw new Error(Errors.ncss.unknown(`token='${JSON.stringify(token)}'`));
 }
 
 function eval_expr(global: Global, env: Env, ast: any): AllType {

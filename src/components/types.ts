@@ -18,7 +18,7 @@ interface Break {
 interface Return {
     code: 2;
     type: "return";
-    result: string[];
+    result: AllType[];
 }
 export type Ret = Ok | Break | Return;
 
@@ -34,13 +34,14 @@ export interface Global {
         [key: string]: AllType;
     };
     stdout: AllType[];
+    go_out_func: boolean;
 }
 
 export interface Env {
     var_table: {
         [key: string]: AllType;
     };
-    result: string[];
+    result: AllType[];
 }
 
 export interface Token {
