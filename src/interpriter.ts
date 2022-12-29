@@ -1,6 +1,6 @@
-import { Scanner } from "./scanner.js";
-import { Evaluator } from "./evaluator.js";
-import * as Parser from "./parser.js";
+import { Scanner } from "./scanner";
+import { Evaluator } from "./evaluator";
+import * as Parser from "./parser";
 
 export function evaluate(text: any) {
   const sc = new Scanner(text);

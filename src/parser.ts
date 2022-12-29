@@ -1,5 +1,5 @@
-import { $ } from "./util.js";
-import { Errors } from "./components/error.js";
+import { $ } from "./util";
+import { Errors } from "./components/error";
 
 export function parse(sc: any) {
   const match = (...type: any[]) => {

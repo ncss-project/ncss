@@ -1,5 +1,5 @@
-import { Errors } from "./components/error.js";
-import { $ } from "./util.js";
+import { Errors } from "./components/error";
+import { $ } from "./util";
 
 export class Scanner {
   pos: any;

@@ -1,5 +1,5 @@
-import * as Util from "../util.js";
-import { Errors } from "./error.js";
+import * as Util from "../util";
+import { Errors } from "./error";
 
 class Functions {
     var(env: any, args: any) {

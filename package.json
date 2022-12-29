@@ -1,11 +1,14 @@
 {
   "name": "ncss",
   "version": "1.0.0",
-  "type": "module",
   "description": "NCSS is not CSS",
   "scripts": {
-    "start": "node index.js"
+    "start": "./node_modules/.bin/ts-node-esm index.ts"
   },
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^18.11.18",
+    "ts-migrate": "^0.1.35"
+  }
 }

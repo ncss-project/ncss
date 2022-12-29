@@ -1,7 +1,7 @@
-import * as Util from "./util.js";
-import Commands from "./components/commands.js";
-import Functions from "./components/functions.js";
-import { Errors } from "./components/error.js";
+import * as Util from "./util";
+import Commands from "./components/commands";
+import Functions from "./components/functions";
+import { Errors } from "./components/error";
 
 export class Evaluator {
   apply(ast: any) {

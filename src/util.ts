@@ -1,4 +1,4 @@
-import { Errors } from "./components/error.js";
+import { Errors } from "./components/error";
 
 export function is_exist(env: any, name: any, output_error = true) {
   if (name in env.var_table) {
