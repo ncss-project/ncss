@@ -18,13 +18,13 @@ export function type(value: AllType): TypeName {
   if (Array.isArray(value))
     return "ARRAY";
 
-  else if ((((/^[-]?\d+\.[\d]+$/))).test(String(value)))
+  else if (/^[-]?\d+\.[\d]+$/.test(String(value)))
+    return "FLOAT";
+
+  else if (/^[-]?\d+$/.test(String(value)))
     return "INT";
 
-  else if ((((/^[-]?\d+$/))).test(String(value)))
-    return "INT";
-
-  else if ((((/"(.*)"/))).test(String(value)))
+  else if (/(.*)/.test(String(value)))
     return "STRING";
 
   else

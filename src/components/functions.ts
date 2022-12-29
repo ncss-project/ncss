@@ -1,14 +1,14 @@
 import * as Util from "./util";
 import { Errors } from "./error";
-import { Ret, Global, Env, Type } from "./types";
+import { Ret, Global, Env, Type, AllType } from "./types";
 
 class Functions {
-    var(env: Env, args: Type[]) {
+    var(env: Env, args: Type[]): AllType {
         Util.arg_length_check(args, 1);
         return Util.get_value(env, String(args[0]));
     }
 
-    arr(env: Env, args: Type[]) {
+    arr(env: Env, args: Type[]): AllType {
         Util.arg_length_check(args, 2);
 
         const name = String(args.shift());
@@ -30,6 +30,22 @@ class Functions {
             return value[index];
         else
             throw new Error(Errors.variable.type_mismatch(name, "ARRAY", Util.type(value)));
+    }
+
+    push(env: Env, args: Type[]): AllType {
+        Util.arg_length_check_more(args, 2);
+
+        const name = String(args.shift());
+        let array = Util.get_value(env, name);
+
+        Util.type_match(env, name, "ARRAY");
+
+        if (Array.isArray(array)) {
+            array.push(...args);
+            return array;
+        } else {
+            throw new Error(Errors.variable.type_mismatch(name, "ARRAY", Util.type(array)))
+        };
     }
 }
 
