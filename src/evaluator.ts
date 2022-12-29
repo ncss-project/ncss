@@ -2,7 +2,7 @@ import * as Util from "./components/util";
 import Commands from "./components/commands";
 import Functions from "./components/functions";
 import { Errors } from "./components/error";
-import { Ret, Global, Env, Type, AllType } from "./components/types";
+import { Ret, Global, Env, AllType, Token } from "./components/types";
 
 export class Evaluator {
   apply(ast: any) {
@@ -82,7 +82,7 @@ function eval_statementlist(global: Global, env: Env, ast: any, called_global_fu
 }
 
 function eval_statement(global: Global, env: Env, ast: any): Ret {
-  const token = ast.shift();
+  const token: Token = ast.shift();
 
   switch (token.type) {
     case "call_cmd": {
@@ -93,6 +93,9 @@ function eval_statement(global: Global, env: Env, ast: any): Ret {
     }
     case "WHILE": {
       return eval_while(global, env, ast);
+    }
+    case "GROUP": {
+      return eval_statementlist(global, env, ast.shift());
     }
     case "ASSIGN": {
       const name = ast.shift()[0].value;

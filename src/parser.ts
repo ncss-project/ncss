@@ -71,6 +71,8 @@ export function parse(sc: Scanner) {
       _statement.push(call_while());
     } else if (match("IF")) {
       _statement.push(call_if());
+    } else if (match("GROUP")) {
+      _statement.push(call_group());
     } else if (match("RETURN")) {
       const name = take("RETURN");
       take("COLON");
@@ -189,6 +191,15 @@ export function parse(sc: Scanner) {
       }
     }
     return _if;
+  }
+
+  const call_group = (): any[] => {
+    const _group = [];
+    _group.push(take("GROUP"));
+    take("BEGIN");
+    _group.push(statlist());
+    take("END");
+    return _group;
   }
 
   const relation = () => {

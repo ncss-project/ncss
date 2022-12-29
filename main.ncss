@@ -23,6 +23,10 @@
         }
     }
 
+    .group {
+        content: "this is group.";
+    }
+
     --arr: 0 10 20 30 40 50;
     content: "--arr[2] is "+ arr(--arr 2);
     transform: --arr 1;

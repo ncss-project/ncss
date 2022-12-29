@@ -4,8 +4,8 @@ export type TypeName = "BOOL" | "INT" | "FLOAT" | "STRING" | "ARRAY";
 export type SCTypeName =
     TypeName
     | "FUNCDEF" | "SQ_PARENTHES_OPEN" | "SQ_PARENTHES_CLOSE" | "PARENTHES_OPEN" | "PARENTHES_CLOSE" | "BEGIN" | "END" | "WHILE" | "IF" | "ELSE"
-    | "BREAK" | "RETURN" | "OP_REL" | "OP_ADD" | "OP_MUL" | "ASSIGN" | "COLON" | "SEMICOLON" | "COMMA" | "VARIABLE"
-    | "IDENT" | "call_cmd" | "call_func" | "add" | "sub" | "mul" | "div" | "mod";
+    | "GROUP" | "BREAK" | "RETURN" | "OP_REL" | "OP_ADD" | "OP_MUL" | "ASSIGN" | "COLON" | "SEMICOLON" | "COMMA"
+    | "VARIABLE" | "IDENT" | "call_cmd" | "call_func" | "add" | "sub" | "mul" | "div" | "mod";
 
 interface Ok {
     code: 0;

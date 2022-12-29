@@ -61,7 +61,10 @@ export class Scanner {
           // @ts-expect-error TS(2345): Argument of type 'false' is not assignable to para... Remove this comment to see the full error message
           return $("BOOL", false);
         default:
-          if (/^(\-\-)/.test(word))
+          if (word[0] === ".")
+            return $("GROUP", word);
+
+          else if (/^(\-\-)/.test(word))
             return $("VARIABLE", word);
 
           else if (/^[-]?\d+\.[\d]+$/.test(word))
