@@ -1,34 +1,26 @@
-import { $ } from "./util";
+import { $ } from "./components/util";
 import { Errors } from "./components/error";
+import { SCTypeName, Token } from "./components/types";
+import { Scanner } from "./scanner";
 
-export function parse(sc: any) {
-  const match = (...type: any[]) => {
-    let r = false;
+export function parse(sc: Scanner) {
+  const match = (...type: SCTypeName[]): boolean => {
     const token = sc.peek();
-    for (let i = 0; i < type.length; i++) {
-      // @ts-expect-error TS(2447): The '|=' operator is not allowed for boolean types... Remove this comment to see the full error message
-      r |= token != undefined && token.type === type[i];
-    }
-
-    return r;
+    return token !== undefined && type.indexOf(token.type) !== -1;
   }
 
-  const take = (...type: any[]) => {
-    let r = false;
+  const take = (...type: SCTypeName[]): Token => {
     const token = sc.peek();
-    for (let i = 0; i < type.length; i++) {
-      // @ts-expect-error TS(2447): The '|=' operator is not allowed for boolean types... Remove this comment to see the full error message
-      r |= token != undefined && token.type === type[i];
-    }
-    if (!r) {
+    if (token.value === null)
+      throw new Error(Errors.ncss.unknown(`token='${JSON.stringify(token)}'`));
+    else if (!(token !== undefined && type.indexOf(token.type) !== -1))
       throw new Error(Errors.syntax.syntax_is_wrong(type, token.type, token.value));
-    }
 
     sc.next();
     return token;
   }
 
-  const program = () => {
+  const program = (): any[] => {
     const _program = [];
     while (match("FUNCDEF")) {
       _program.push(funcdef());
@@ -36,7 +28,7 @@ export function parse(sc: any) {
     return _program;
   }
 
-  const funcdef = () => {
+  const funcdef = (): any[] => {
     const _funcdef = [];
     _funcdef.push(take("FUNCDEF"));
     _funcdef.push([take("IDENT")]);
@@ -53,7 +45,7 @@ export function parse(sc: any) {
     return _funcdef;
   }
 
-  const funcargs = () => {
+  const funcargs = (): any[] => {
     const _funcargs = [];
     while (match("VARIABLE")) {
       _funcargs.push([take("VARIABLE")]);
@@ -65,18 +57,15 @@ export function parse(sc: any) {
     return _funcargs;
   }
 
-  // @ts-expect-error TS(7023): 'statlist' implicitly has return type 'any' becaus... Remove this comment to see the full error message
-  const statlist = () => {
+  const statlist = (): any[] => {
     const _statlist = [];
-    // @ts-expect-error TS(7022): 'smt' implicitly has type 'any' because it does no... Remove this comment to see the full error message
     for (let smt = statement(); 0 < smt.length; smt = statement()) {
       _statlist.push(smt);
     }
     return _statlist;
   }
 
-  // @ts-expect-error TS(7023): 'statement' implicitly has return type 'any' becau... Remove this comment to see the full error message
-  const statement = () => {
+  const statement = (): any[] => {
     const _statement = [];
     if (match("WHILE")) {
       _statement.push(call_while());
@@ -105,7 +94,7 @@ export function parse(sc: any) {
     return _statement;
   }
 
-  const call_cmd = (name: any) => {
+  const call_cmd = (name: Token) => {
     const _funcall = [];
     _funcall.push($("call_cmd"));
     _funcall.push(name);
@@ -115,7 +104,7 @@ export function parse(sc: any) {
     return _funcall;
   }
 
-  const call_cmd_args = () => {
+  const call_cmd_args = (): any[] => {
     const _args = [];
     while (match("INT", "FLOAT", "STRING", "BOOL", "IDENT", "VARIABLE")) {
       _args.push(expr());
@@ -127,8 +116,7 @@ export function parse(sc: any) {
     return _args;
   }
 
-  // @ts-expect-error TS(7023): 'call_func' implicitly has return type 'any' becau... Remove this comment to see the full error message
-  const call_func = (name: any) => {
+  const call_func = (name: Token): any[] => {
     const _funcall = [];
     _funcall.push($("call_func"));
     _funcall.push(name);
@@ -139,8 +127,7 @@ export function parse(sc: any) {
     return _funcall;
   }
 
-  // @ts-expect-error TS(7023): 'call_func_args' implicitly has return type 'any' ... Remove this comment to see the full error message
-  const call_func_args = () => {
+  const call_func_args = (): any[] => {
     const _args = [];
     while (match("INT", "FLOAT", "STRING", "BOOL", "IDENT", "VARIABLE")) {
       _args.push(expr());
@@ -152,7 +139,7 @@ export function parse(sc: any) {
     return _args;
   }
 
-  const assign = (name: any) => {
+  const assign = (name: Token): any[] => {
     const _assign = [];
     const _colon = take("COLON");
     _colon.type = "ASSIGN";
@@ -169,8 +156,7 @@ export function parse(sc: any) {
     return _assign;
   }
 
-  // @ts-expect-error TS(7023): 'call_while' implicitly has return type 'any' beca... Remove this comment to see the full error message
-  const call_while = () => {
+  const call_while = (): any[] => {
     const _while = [];
     _while.push(take("WHILE"));
     take("SQ_PARENTHES_OPEN");
@@ -179,11 +165,11 @@ export function parse(sc: any) {
     take("BEGIN");
     _while.push(statlist());
     take("END");
+
     return _while;
   }
 
-  // @ts-expect-error TS(7023): 'call_if' implicitly has return type 'any' because... Remove this comment to see the full error message
-  const call_if = () => {
+  const call_if = (): any[] => {
     const _if = [];
     _if.push(take("IF"));
     take("SQ_PARENTHES_OPEN");
@@ -212,14 +198,11 @@ export function parse(sc: any) {
       const arg2 = expr();
       return [op, arg1, arg2];
     } else {
-      // @ts-expect-error TS(2345): Argument of type '"direct"' is not assignable to p... Remove this comment to see the full error message
       return [$("OP_REL", "direct"), arg1];
     }
   }
 
-  // @ts-expect-error TS(7023): 'expr' implicitly has return type 'any' because it... Remove this comment to see the full error message
-  const expr = () => {
-    // @ts-expect-error TS(7022): '_expr' implicitly has type 'any' because it does ... Remove this comment to see the full error message
+  const expr = (): any[] => {
     let _expr = term();
 
     while (match("OP_ADD")) {
@@ -235,9 +218,7 @@ export function parse(sc: any) {
     return _expr;
   }
 
-  // @ts-expect-error TS(7023): 'term' implicitly has return type 'any' because it... Remove this comment to see the full error message
-  const term = () => {
-    // @ts-expect-error TS(7022): '_term' implicitly has type 'any' because it does ... Remove this comment to see the full error message
+  const term = (): any[] => {
     let _term = factor();
     while (match("OP_MUL")) {
       switch (take("OP_MUL").value) {
@@ -255,11 +236,9 @@ export function parse(sc: any) {
     return _term;
   }
 
-  // @ts-expect-error TS(7023): 'factor' implicitly has return type 'any' because ... Remove this comment to see the full error message
-  const factor = () => {
+  const factor = (): any[] => {
     if (match("PARENTHES_OPEN")) {
       take("PARENTHES_OPEN");
-      // @ts-expect-error TS(7022): '_factor' implicitly has type 'any' because it doe... Remove this comment to see the full error message
       const _factor = expr();
       take("PARENTHES_CLOSE");
 
@@ -268,8 +247,7 @@ export function parse(sc: any) {
     return literal();
   }
 
-  // @ts-expect-error TS(7023): 'literal' implicitly has return type 'any' because... Remove this comment to see the full error message
-  const literal = () => {
+  const literal = (): any[] => {
     const _literal = take("INT", "FLOAT", "STRING", "BOOL", "IDENT", "VARIABLE");
     if (_literal.type == "IDENT" && match("PARENTHES_OPEN")) {
       return call_func(_literal);

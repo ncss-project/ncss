@@ -1,19 +1,20 @@
-import * as Util from "./util";
+import * as Util from "./components/util";
 import Commands from "./components/commands";
 import Functions from "./components/functions";
 import { Errors } from "./components/error";
+import { Ret, Global, Env, Type, AllType } from "./components/types";
 
 export class Evaluator {
   apply(ast: any) {
-    const global = {
+    const global: Global = {
       cmd_table: {
-        content: (env: any, args: any) => Commands.content(global, args[0]),
-        transform: (env: any, args: any) => Commands.transform(env, args),
-        result: (env: any, args: any) => Commands.result(env, args),
+        content: (env, args) => Commands.content(global, args),
+        transform: (env, args) => Commands.transform(env, args),
+        result: (env, args) => Commands.result(env, args),
       },
       func_table: {
-        var: (env: any, args: any) => Functions.var(env, args),
-        arr: (env: any, args: any) => Functions.arr(env, args),
+        var: (env, args) => Functions.var(env, args),
+        arr: (env, args) => Functions.arr(env, args),
       },
       var_table: {},
       stdout: [],
@@ -21,73 +22,82 @@ export class Evaluator {
 
     eval_program(global, ast);
 
-    // @ts-expect-error TS(2339): Property 'main' does not exist on type '{ content:... Remove this comment to see the full error message
-    if (!global.cmd_table.main)
+    if (!global.main)
       throw new Error(Errors.syntax.function_is_defined("main"));
 
-    // @ts-expect-error TS(2339): Property 'main' does not exist on type '{ content:... Remove this comment to see the full error message
-    global.cmd_table.main();
+    global.main();
     return global;
   }
 }
 
-class GoToError extends Error { }
-class ReturnError extends GoToError { }
-class BreakError extends GoToError { }
-
-function eval_program(global: any, ast: any) {
+function eval_program(global: Global, ast: any) {
   for (let i = 0; i < ast.length; i++) {
     eval_cmddef(global, ast[i]);
   }
 }
 
-function eval_cmddef(global: any, ast: any) {
+function eval_cmddef(global: Global, ast: any) {
   ast.shift();
   const name = ast.shift()[0].value;
   const args = ast.shift();
 
-  global.cmd_table[name] = (_: any, args_values: any) => {
-    const env = {
-      var_table: {},
-      result: [],
-    };
-    for (let i = 0; i < args.length; i++) {
-      Util.set_value(env, args[i][0].value, args_values[i], true);
-    }
+  if (name === "main") {
+    global.main = () => {
+      const env: Env = {
+        var_table: {},
+        result: [],
+      };
 
-    try {
-      eval_statementlist(global, env, Util.deep_copy(ast).shift());
-    } catch (err) {
-      if (err instanceof ReturnError) {
-        return env.result;
-      } else {
-        throw err;
+      const ret = eval_statementlist(global, env, Util.deep_copy(ast).shift());
+      console.log("🚀 : ret", ret)
+      if (ret.code === 2) {
+        ret.result = env.result;
+        return ret;
       }
-    }
-  };
-}
+      else return ret;
+    };
+  } else {
+    global.cmd_table[name] = (_: Env, args_values: AllType[]) => {
+      const env: Env = {
+        var_table: {},
+        result: [],
+      };
+      for (let i = 0; i < args.length; i++) {
+        Util.set_value(env, args[i][0].value, args_values[i], true);
+      }
 
-function eval_statementlist(global: any, env: any, ast: any) {
-  for (let i = 0; i < ast.length; i++) {
-    eval_statement(global, env, ast[i].shift());
+      const ret = eval_statementlist(global, env, Util.deep_copy(ast).shift());
+      if (ret.code === 2) {
+        ret.result = env.result;
+        return ret;
+      }
+      else return ret;
+    };
   }
 }
 
-function eval_statement(global: any, env: any, ast: any) {
+function eval_statementlist(global: Global, env: Env, ast: any): Ret {
+  for (let i = 0; i < ast.length; i++) {
+    const ret = eval_statement(global, env, ast[i].shift());
+    if (ret.code !== 0) return ret;
+  }
+  return { code: 0, type: "ok" };
+}
+
+function eval_statement(global: Global, env: Env, ast: any): Ret {
   const token = ast.shift();
 
   switch (token.type) {
     case "call_cmd": {
-      env.result = eval_call_cmd(global, env, ast);
-      break;
+      const ret = eval_call_cmd(global, env, ast);
+      if (ret.code === 2) env.result = ret.result;
+      return ret;
     }
     case "IF": {
-      eval_if(global, env, ast);
-      break;
+      return eval_if(global, env, ast);
     }
     case "WHILE": {
-      eval_while(global, env, ast);
-      break;
+      return eval_while(global, env, ast);
     }
     case "ASSIGN": {
       const name = ast.shift()[0].value;
@@ -104,22 +114,23 @@ function eval_statement(global: any, env: any, ast: any) {
       break;
     }
     case "BREAK": {
-      throw new BreakError();
+      return { code: 1, type: "break" };
     }
     case "RETURN": {
       env.result = eval_call_return(global, env, ast);
-      throw new ReturnError();
+      return { code: 2, type: "return", result: env.result };
     }
     default: {
       throw new Error(Errors.ncss.unknown(`token='${JSON.stringify(token)}'`));
     }
   }
+  return { code: 0, type: "ok" };
 }
 
-function eval_call_cmd(global: any, env: any, ast: any) {
+function eval_call_cmd(global: Global, env: Env, ast: any): Ret {
   const name = ast.shift().value;
   const args = ast.shift();
-  const mapped_args = args.map((t: any) => eval_expr(global, env, t));
+  const mapped_args = args.map((arg: AllType) => eval_expr(global, env, arg));
 
   if (!(name in global.cmd_table))
     throw new Error(Errors.syntax.function_is_defined(name));
@@ -127,57 +138,58 @@ function eval_call_cmd(global: any, env: any, ast: any) {
   return global.cmd_table[name](env, mapped_args);
 }
 
-function eval_call_return(global: any, env: any, ast: any) {
+function eval_call_return(global: Global, env: Env, ast: any) {
   const args = ast.shift();
-  const mapped_args = args.map((t: any) => eval_expr(global, env, t));
+  const mapped_args = args.map((arg: AllType) => eval_expr(global, env, arg));
 
   return mapped_args;
 }
 
-function eval_call_func(global: any, env: any, ast: any) {
+function eval_call_func(global: Global, env: Env, ast: any): AllType {
   const name = ast.shift().value;
   const args = ast.shift();
-  const mapped_args = args.map((t: any) => eval_expr(global, Util.deep_copy(env), t));
+  const mapped_args = args.map((arg: AllType) => eval_expr(global, Util.deep_copy(env), arg));
 
   return global.func_table[name](env, mapped_args);
 }
 
-function eval_if(global: any, env: any, ast: any) {
+function eval_if(global: Global, env: Env, ast: any): Ret {
   const guard = eval_relation(global, env, ast.shift());
   const block1 = ast.shift();
   const else_directive = ast.shift();
   const block2 = ast.shift();
   if (guard) {
-    eval_statementlist(global, env, block1);
+    return eval_statementlist(global, env, block1);
   } else if (else_directive) {
     if (block2[0].type == "IF") {
       block2.shift();
       eval_if(global, env, block2);
     } else {
-      eval_statementlist(global, env, block2);
+      return eval_statementlist(global, env, block2);
     }
   }
+  return { code: 0, type: "ok" };
 }
 
-function eval_while(global: any, env: any, ast: any) {
-  try {
-    while (true) {
-      const cloned_ast = Util.deep_copy(ast);
-      const guard = eval_relation(global, env, cloned_ast.shift());
-      if (!guard) {
-        break;
-      }
-      const block = cloned_ast.shift();
-      eval_statementlist(global, env, block);
+function eval_while(global: Global, env: Env, ast: any): Ret {
+  let ret: Ret = { code: 0, type: "ok" };
+  while (true) {
+    const cloned_ast = Util.deep_copy(ast);
+    const guard = eval_relation(global, env, cloned_ast.shift());
+    if (!guard) {
+      break;
     }
-  } catch (err) {
-    if (!(err instanceof BreakError)) {
-      throw err;
-    }
+    const block = cloned_ast.shift();
+    ret = eval_statementlist(global, env, block);
+    if (ret.code !== 0) break;
   }
+
+  if (ret.code === 1) ret = { code: 0, type: "ok" };
+
+  return ret;
 }
 
-function eval_relation(global: any, env: any, ast: any) {
+function eval_relation(global: Global, env: Env, ast: any) {
   const token = (Array.isArray(ast)) ? ast.shift() : ast;
   switch (token.type) {
     case "OP_REL": {
@@ -220,45 +232,51 @@ function eval_relation(global: any, env: any, ast: any) {
   }
 }
 
-// @ts-expect-error TS(7023): 'eval_expr' implicitly has return type 'any' becau... Remove this comment to see the full error message
-function eval_expr(global: any, env: any, ast: any) {
+function eval_expr(global: Global, env: Env, ast: any): AllType {
   const token = (Array.isArray(ast)) ? ast.shift() : ast;
 
   switch (token.type) {
     case "add": {
-      // @ts-expect-error TS(7022): 'x' implicitly has type 'any' because it does not ... Remove this comment to see the full error message
-      const x = eval_expr(global, env, ast.shift());
-      // @ts-expect-error TS(7022): 'y' implicitly has type 'any' because it does not ... Remove this comment to see the full error message
-      const y = eval_expr(global, env, ast.shift());
-      return x + y;
+      const left = eval_expr(global, env, ast.shift());
+      const right = eval_expr(global, env, ast.shift());
+      if (typeof left === "number" && typeof right === "number")
+        return left + right;
+      else
+        return String(left) + String(right);
     }
     case "sub": {
-      // @ts-expect-error TS(7022): 'x' implicitly has type 'any' because it does not ... Remove this comment to see the full error message
-      const x = eval_expr(global, env, ast.shift());
-      // @ts-expect-error TS(7022): 'y' implicitly has type 'any' because it does not ... Remove this comment to see the full error message
-      const y = eval_expr(global, env, ast.shift());
-      return x - y;
+      const left = eval_expr(global, env, ast.shift());
+      const right = eval_expr(global, env, ast.shift());
+      if (typeof left === "number" && typeof right === "number")
+        return left - right;
+      else
+        throw new Error(Errors.operator.cannnot_calculated("-", left, right));
     }
     case "mul": {
-      // @ts-expect-error TS(7022): 'x' implicitly has type 'any' because it does not ... Remove this comment to see the full error message
-      const x = eval_expr(global, env, ast.shift());
-      // @ts-expect-error TS(7022): 'y' implicitly has type 'any' because it does not ... Remove this comment to see the full error message
-      const y = eval_expr(global, env, ast.shift());
-      return x * y;
+      const left = eval_expr(global, env, ast.shift());
+      const right = eval_expr(global, env, ast.shift());
+      if (typeof left === "number" && typeof right === "number")
+        return left * right;
+      else if (typeof right === "number")
+        return String(left).repeat(right);
+      else
+        throw new Error(Errors.operator.cannnot_calculated("*", left, right));
     }
     case "div": {
-      // @ts-expect-error TS(7022): 'x' implicitly has type 'any' because it does not ... Remove this comment to see the full error message
-      const x = eval_expr(global, env, ast.shift());
-      // @ts-expect-error TS(7022): 'y' implicitly has type 'any' because it does not ... Remove this comment to see the full error message
-      const y = eval_expr(global, env, ast.shift());
-      return x / y;
+      const left = eval_expr(global, env, ast.shift());
+      const right = eval_expr(global, env, ast.shift());
+      if (typeof left === "number" && typeof right === "number")
+        return left / right;
+      else
+        throw new Error(Errors.operator.cannnot_calculated("/", left, right));
     }
     case "mod": {
-      // @ts-expect-error TS(7022): 'x' implicitly has type 'any' because it does not ... Remove this comment to see the full error message
-      const x = eval_expr(global, env, ast.shift());
-      // @ts-expect-error TS(7022): 'y' implicitly has type 'any' because it does not ... Remove this comment to see the full error message
-      const y = eval_expr(global, env, ast.shift());
-      return x % y;
+      const left = eval_expr(global, env, ast.shift());
+      const right = eval_expr(global, env, ast.shift());
+      if (typeof left === "number" && typeof right === "number")
+        return left % right;
+      else
+        throw new Error(Errors.operator.cannnot_calculated("%", left, right));
     }
     case "call_func": {
       return eval_call_func(global, env, ast);
@@ -279,45 +297,51 @@ function eval_expr(global: any, env: any, ast: any) {
   }
 }
 
-// @ts-expect-error TS(7023): 'eval_expr_relation' implicitly has return type 'a... Remove this comment to see the full error message
-function eval_expr_relation(global: any, env: any, ast: any) {
+function eval_expr_relation(global: Global, env: Env, ast: any): AllType {
   const token = (Array.isArray(ast)) ? ast.shift() : ast;
 
   switch (token.type) {
     case "add": {
-      // @ts-expect-error TS(7022): 'x' implicitly has type 'any' because it does not ... Remove this comment to see the full error message
-      const x = eval_expr_relation(global, env, ast.shift());
-      // @ts-expect-error TS(7022): 'y' implicitly has type 'any' because it does not ... Remove this comment to see the full error message
-      const y = eval_expr_relation(global, env, ast.shift());
-      return x + y;
+      const left = eval_expr(global, env, ast.shift());
+      const right = eval_expr(global, env, ast.shift());
+      if (typeof left === "number" && typeof right === "number")
+        return left + right;
+      else
+        return String(left) + String(right);
     }
     case "sub": {
-      // @ts-expect-error TS(7022): 'x' implicitly has type 'any' because it does not ... Remove this comment to see the full error message
-      const x = eval_expr_relation(global, env, ast.shift());
-      // @ts-expect-error TS(7022): 'y' implicitly has type 'any' because it does not ... Remove this comment to see the full error message
-      const y = eval_expr_relation(global, env, ast.shift());
-      return x - y;
+      const left = eval_expr(global, env, ast.shift());
+      const right = eval_expr(global, env, ast.shift());
+      if (typeof left === "number" && typeof right === "number")
+        return left - right;
+      else
+        throw new Error(Errors.operator.cannnot_calculated("-", left, right));
     }
     case "mul": {
-      // @ts-expect-error TS(7022): 'x' implicitly has type 'any' because it does not ... Remove this comment to see the full error message
-      const x = eval_expr_relation(global, env, ast.shift());
-      // @ts-expect-error TS(7022): 'y' implicitly has type 'any' because it does not ... Remove this comment to see the full error message
-      const y = eval_expr_relation(global, env, ast.shift());
-      return x * y;
+      const left = eval_expr(global, env, ast.shift());
+      const right = eval_expr(global, env, ast.shift());
+      if (typeof left === "number" && typeof right === "number")
+        return left * right;
+      else if (typeof right === "number")
+        return String(left).repeat(right);
+      else
+        throw new Error(Errors.operator.cannnot_calculated("*", left, right));
     }
     case "div": {
-      // @ts-expect-error TS(7022): 'x' implicitly has type 'any' because it does not ... Remove this comment to see the full error message
-      const x = eval_expr_relation(global, env, ast.shift());
-      // @ts-expect-error TS(7022): 'y' implicitly has type 'any' because it does not ... Remove this comment to see the full error message
-      const y = eval_expr_relation(global, env, ast.shift());
-      return x / y;
+      const left = eval_expr(global, env, ast.shift());
+      const right = eval_expr(global, env, ast.shift());
+      if (typeof left === "number" && typeof right === "number")
+        return left / right;
+      else
+        throw new Error(Errors.operator.cannnot_calculated("/", left, right));
     }
     case "mod": {
-      // @ts-expect-error TS(7022): 'x' implicitly has type 'any' because it does not ... Remove this comment to see the full error message
-      const x = eval_expr_relation(global, env, ast.shift());
-      // @ts-expect-error TS(7022): 'y' implicitly has type 'any' because it does not ... Remove this comment to see the full error message
-      const y = eval_expr_relation(global, env, ast.shift());
-      return x % y;
+      const left = eval_expr(global, env, ast.shift());
+      const right = eval_expr(global, env, ast.shift());
+      if (typeof left === "number" && typeof right === "number")
+        return left % right;
+      else
+        throw new Error(Errors.operator.cannnot_calculated("%", left, right));
     }
     case "call_func": {
       return eval_call_func(global, env, ast);
@@ -327,7 +351,7 @@ function eval_expr_relation(global: any, env: any, ast: any) {
       const value = Util.get_value(env, name);
       const type_ = Util.type(value);
       if (type_ === "ARRAY")
-        throw new Error(Errors.comparison.cannnot_compared(name, type_));
+        throw new Error(Errors.operator.cannnot_compared(name, type_));
 
       return value;
     }

@@ -1,11 +1,12 @@
 import { Errors } from "./components/error";
-import { $ } from "./util";
+import { Token } from "./components/types";
+import { $ } from "./components/util";
 
 export class Scanner {
-  pos: any;
-  tokens: any;
-  constructor(text: any) {
-    const tokenize = (word: any) => {
+  pos: number;
+  tokens: Token[];
+  constructor(text: string) {
+    const tokenize = (word: string) => {
       switch (word) {
         case "#":
           return $("FUNCDEF", word);
@@ -60,25 +61,26 @@ export class Scanner {
           // @ts-expect-error TS(2345): Argument of type 'false' is not assignable to para... Remove this comment to see the full error message
           return $("BOOL", false);
         default:
-          if ((((/^(\-\-)/))).test(word))
+          if (/^(\-\-)/.test(word))
             return $("VARIABLE", word);
 
-          else if ((((/^[-]?\d+\.[\d]+$/))).test(word))
-            // @ts-expect-error TS(2345): Argument of type 'number' is not assignable to par... Remove this comment to see the full error message
+          else if (/^[-]?\d+\.[\d]+$/.test(word))
             return $("FLOAT", parseFloat(word));
 
-          else if ((((/^[-]?\d+$/))).test(word))
-            // @ts-expect-error TS(2345): Argument of type 'number' is not assignable to par... Remove this comment to see the full error message
+          else if (/^[-]?\d+$/.test(word))
             return $("INT", parseInt(word));
 
-          else if ((((/"(.*)"/))).test(word))
-            return $("STRING", word.match(/"(.*)"/)[1]);
+          else if (/^"(.*)"$/.test(word)) {
+            const w1 = word.slice(1);
+            const w2 = w1.slice(0, -1);
+            return $("STRING", w2);
+          }
 
           else
             return $("IDENT", word);
       }
     };
-    const split = (text: any) => {
+    const split = (text: string): Token[] => {
       const tokens = [];
       let idx = 0;
       while (idx < text.length) {

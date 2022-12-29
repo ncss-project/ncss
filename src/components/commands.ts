@@ -1,15 +1,20 @@
-import * as Util from "../util";
+import * as Util from "./util";
 import { Errors } from "./error";
+import { Ret, Global, Env, Type } from "./types";
 
 class Commands {
-    content(global: any, text: any) {
-        global.stdout.push(text);
+    content(global: Global, args: Type[]): Ret {
+        args.map((arg) => {
+            console.log(arg);
+            global.stdout.push(arg);
+        })
+        return { code: 0, type: "ok" };
     }
 
-    transform(env: any, args: any) {
+    transform(env: Env, args: Type[]): Ret {
         Util.arg_length_check_more(args, 1);
 
-        const name = args.shift();
+        const name = String(args.shift());
         if (Util.type_match(env, name, "ARRAY", false)) {
             Util.set_value(env, name, args);
         } else {
@@ -20,21 +25,26 @@ class Commands {
 
             Util.set_value(env, name, args[0])
         }
-
+        return { code: 0, type: "ok" };
     }
 
-    result(env: any, args: any) {
+    result(env: Env, args: Type[]): Ret {
         Util.arg_length_check(args, env.result.length);
+        if (typeof args[0] !== "string")
+            throw new Error(Errors.variable.type_mismatch(args[0], "STRING", Util.type(args[0])));
+
         if (args.length === 1) {
-            Util.set_value(env, args[0], env.result[0], true);
+            Util.set_value(env, String(args[0]), env.result[0], true);
 
         } else {
-            args.map((arg: any, i: any) => {
-                if (!(arg in env.var_table)) {
-                    Util.set_value(env, arg, env.result[i], true);
+            args.map((arg, i: number) => {
+                const name = String(arg);
+                if (!(name in env.var_table)) {
+                    Util.set_value(env, name, env.result[i], true);
                 }
             })
         }
+        return { code: 0, type: "ok" };
     }
 }
 
