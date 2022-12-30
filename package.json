@@ -16,9 +16,12 @@
     "url": "git+https://github.com/SatooRu65536/ncss.git"
   },
   "scripts": {
-    "start": "npm run build && ./bin/ncss",
+    "start": "yarn build && ./bin/ncss",
     "build": "yarn tsc --outDir build",
-    "create-command": "npm run build && npm link"
+    "create-command": "npm run build && npm link",
+    "v-patch": "npm version patch -m 'Upgrade to %s' && npm publish",
+    "v-minor": "npm version minor -m 'Upgrade to %s' && npm publish",
+    "v-major": "npm version major -m 'Upgrade to %s' && npm publish"
   },
   "bin": {
     "ncss": "bin/ncss"
