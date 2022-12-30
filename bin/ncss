@@ -1,0 +1,63 @@
+#!/usr/bin/env node
+
+const fs = require("fs");
+const { Scanner } = require("../build/src/scanner.js");
+const { Evaluator } = require("../build/src/evaluator.js");
+const Parser = require("../build/src/parser.js");
+
+const flags = {
+    "-t": "--token",
+    "-a": "--ast",
+    "-o": "--output",
+};
+const flags_arr = Object.keys(flags).concat(Object.values(flags));
+
+const args = process.argv;
+const args_flag = args.filter((arg) => { return flags_arr.indexOf(arg) !== -1 });
+const args_filePath = args.filter((arg) => { return flags_arr.indexOf(arg) === -1 }).slice(-1)[0];
+let filePath = process.cwd() + "/";
+if (args_filePath[0] === "/") filePath = args_filePath;
+else filePath += args_filePath;
+
+if (args.length < 2) {
+    const help_msg = [
+        "ncss <command>",
+        "",
+        "Usage:",
+        "",
+        "ncss <filePath>    run the script named <filePath>.",
+        "ncss help          show help.",
+        "",
+        "Flags:",
+        "",
+        "-t (--tokens)      generate token data file.",
+        "-a (--ast)         generate abstract syntax tree file.",
+        "",
+    ];
+    console.log(help_msg.join("\n"));
+    return;
+} else if (!fs.existsSync(filePath)) {
+    console.error(`ERROR: no such file or directory, open '${filePath}'`);
+} else {
+    fs.readFile(filePath, "utf-8", (err, ncss_data) => {
+        if (err) throw console.log(err.message);
+
+        const sc = new Scanner(ncss_data);
+        if (args_flag.indexOf("-t") !== -1 || args_flag.indexOf("--tokens") !== -1) {
+            fs.writeFile("ncss.tkn.json", JSON.stringify(sc), (e) => {
+                if (e) console.log(e.message);
+                else console.log('wrote the tokens. => ncss.tkn.json');
+            });
+        }
+
+        const ast = Parser.parse(sc);
+        if (args_flag.indexOf("-a") !== -1 || args_flag.indexOf("--ast") !== -1) {
+            fs.writeFile("ncss.ast.json", JSON.stringify(ast), (e) => {
+                if (e) console.log(e.message);
+                else console.log('wrote the ast. => ncss.ast.json');
+            });
+        }
+
+        console.log(new Evaluator().apply(ast).stdout.join("\n"));
+    });
+}
