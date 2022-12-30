@@ -21,9 +21,11 @@ const args = arg({
     '-a': '--ast',
 });
 
-if (args._.length === 0 || args["--help"]) {
+if (args["--version"]) {
+    console.log(package.version);
+} else if (args._.length === 0 || args["--help"]) {
     const help_msg = [
-        "ncss <command>",
+        "ncss [flags] <command>",
         "",
         "Usage:",
         "",
@@ -32,14 +34,13 @@ if (args._.length === 0 || args["--help"]) {
         "",
         "Flags:",
         "",
+        "-h (--help)        show help.",
+        "-v (--tokens)      show version.",
         "-t (--tokens)      generate token data file.",
         "-a (--ast)         generate abstract syntax tree file.",
         "",
     ];
     console.log(help_msg.join("\n"));
-    return;
-} else if (args["--version"]) {
-    console.log(package.version);
 } else if (!fs.existsSync(args._[0])) {
     console.error(`ERROR: no such file or directory, open '${args._[0]}'`);
 } else {
@@ -51,7 +52,6 @@ if (args._.length === 0 || args["--help"]) {
         if (args["--token"]) {
             fs.writeFile("ncss.tkn.json", JSON.stringify(sc), (e) => {
                 if (e) console.log(e.message);
-                else console.log('wrote the tokens. => ncss.tkn.json');
             });
         }
 
@@ -59,10 +59,9 @@ if (args._.length === 0 || args["--help"]) {
         if (args["--ast"]) {
             fs.writeFile("ncss.ast.json", JSON.stringify(ast), (e) => {
                 if (e) console.log(e.message);
-                else console.log('wrote the ast. => ncss.ast.json');
             });
         }
 
-        console.log(new Evaluator().apply(ast).stdout.join("\n"));
+        new Evaluator().apply(ast).stdout.join("\n");
     });
 }
