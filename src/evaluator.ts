@@ -15,6 +15,7 @@ export class Evaluator {
       func_table: {
         var: (env, args) => Functions.var(env, args),
         arr: (env, args) => Functions.arr(env, args),
+        push: (env, args) => Functions.push(env, args),
       },
       var_table: {},
       stdout: [],

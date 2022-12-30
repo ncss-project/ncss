@@ -15,16 +15,12 @@ class Commands {
         Util.arg_length_check_more(args, 1);
 
         const name = String(args.shift());
-        if (Util.type_match(env, name, "ARRAY", false)) {
-            Util.set_value(env, name, args);
-        } else {
-            if (args.length !== 1) {
-                const type_ = Util.type(Util.get_value(env, name));
-                throw new Error(Errors.variable.type_mismatch(name, "ARRAY", type_));
-            }
-
-            Util.set_value(env, name, args[0])
+        if (Util.type_match_excep(env, name, "ARRAY", false) && args.length !== 1) {
+            const type_ = Util.type(Util.get_value(env, name));
+            throw new Error(Errors.variable.type_mismatch(name, "ARRAY", type_));
         }
+        Util.set_value(env, name, args[0])
+
         return { code: 0, type: "ok" };
     }
 
