@@ -9,7 +9,7 @@ A. (It isn't programming languages.)
 
 ## Install
 ```zsh
-npm install -g @SatooRu65536/ncss
+npm install -g @satooru65536/ncss
 ```
 
 ## Usage
