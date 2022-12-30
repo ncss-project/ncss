@@ -16,7 +16,7 @@
     "url": "git+https://github.com/SatooRu65536/ncss.git"
   },
   "scripts": {
-    "start": "node bin/ncss main.ncss",
+    "start": "npm run build && ./bin/ncss",
     "build": "yarn tsc --outDir build",
     "create-command": "npm run build && npm link"
   },

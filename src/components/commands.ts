@@ -4,10 +4,8 @@ import { Ret, Global, Env, Type } from "./types";
 
 class Commands {
     content(global: Global, args: Type[]): Ret {
-        args.map((arg) => {
-            console.log(arg);
-            global.stdout.push(arg);
-        })
+        console.log(args.join(" "));
+        global.stdout.push(args.join(" "));
         return { code: 0, type: "ok" };
     }
 

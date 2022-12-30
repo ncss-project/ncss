@@ -1,8 +1,8 @@
 #main {
     /* this is comment */
     --num: 2.1;
-    transform: --num var(--num) + 1.6;
-    content: "--num is " + var(--num);
+    transform: --num var(--num) 1.6;
+    content: "--num is" var(--num);
 
     content: "";
 
@@ -24,7 +24,7 @@
     --i: 0;
 
     .while[--i < 5] {
-        content: "while: " + var(--i);
+        content: "while:" var(--i);
         transform: --i, var(--i) + 1;
 
         .if[--i==3] {
@@ -46,10 +46,10 @@
     content: "";
     /* array */
     --arr: 0 10 20 30 40 50;
-    content: "--arr is "+var(--arr);
-    content: "--arr[2] is "+arr(--arr 2);
+    content: "--arr is " var(--arr);
+    content: "--arr[2] is " arr(--arr 2);
     transform: --arr push(--arr "a" "b" "c");
-    content: "--arr is "+var(--arr);
+    content: "--arr is " var(--arr);
 
     content: "";
     /* call self function */
@@ -58,12 +58,12 @@
     content: "";
     /* get return value */
     result: --res-1 --res-2;
-    content: "res 1 : "+var(--res-1);
-    content: "res 2 : "+var(--res-2);
+    content: "res 1 :" var(--res-1);
+    content: "res 2 :" var(--res-2);
 }
 
 #sub[--arg] {
-    content: "sub function arg is " + var(--arg);
+    content: "sub function arg is" var(--arg);
     return: "return content" 123;
 
     /* not called */
