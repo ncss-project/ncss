@@ -39,6 +39,8 @@ if (args["--version"]) {
         "-t (--tokens)      generate token data file.",
         "-a (--ast)         generate abstract syntax tree file.",
         "",
+        "how to write ncss.",
+        "=> https://github.com/SatooRu65536/ncss/blob/main/README.md",
     ];
     console.log(help_msg.join("\n"));
 } else if (!fs.existsSync(args._[0])) {

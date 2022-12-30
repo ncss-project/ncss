@@ -17,7 +17,7 @@ npm install -g @satooru65536/ncss
 ncss ./main.ncss
 ```
 
-## NCSS sample
+## How to write ncss
 
 ### Hello World!
 ```css
