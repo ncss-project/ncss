@@ -27,10 +27,9 @@ const Util = __importStar(require("./util"));
 const error_1 = require("./error");
 class Commands {
     content(global, args) {
-        args.map((arg) => {
-            console.log(arg);
-            global.stdout.push(arg);
-        });
+        console.log(`"🚀 : args", ${args}`);
+        console.log(args.join(" "));
+        global.stdout.push(args.join(" "));
         return { code: 0, type: "ok" };
     }
     transform(env, args) {
