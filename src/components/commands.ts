@@ -19,7 +19,11 @@ class Commands {
             const type_ = Util.type(Util.get_value(env, name));
             throw new Error(Errors.variable.type_mismatch(name, "ARRAY", type_));
         }
-        Util.set_value(env, name, args[0])
+
+        if (args.length === 1)
+            Util.set_value(env, name, args)
+        else
+            Util.set_value(env, name, args)
 
         return { code: 0, type: "ok" };
     }
