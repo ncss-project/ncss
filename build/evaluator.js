@@ -248,7 +248,7 @@ function eval_expr(global, env, ast) {
             if (typeof left === "number" && typeof right === "number")
                 return left + right;
             else
-                return String(left) + String(right);
+                return JSON.stringify(left) + JSON.stringify(right);
         }
         case "sub": {
             const left = eval_expr(global, env, ast.shift());
