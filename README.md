@@ -17,6 +17,11 @@ npm install -g @satooru65536/ncss
 ncss ./main.ncss
 ```
 
+## VScode extensions
+- [snippets](https://marketplace.visualstudio.com/items?itemName=SatooRu65536.ncss-snippets)
+- [formatter](https://marketplace.visualstudio.com/items?itemName=SatooRu65536.ncss-formatter)
+- [support](https://marketplace.visualstudio.com/items?itemName=SatooRu65536.ncss-support)
+
 ## How to write ncss
 
 ### Hello World!
