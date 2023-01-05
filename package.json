@@ -9,7 +9,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/SatooRu65536/ncss.git"
+    "url": "https://github.com/ncss-project/ncss"
+  },
+  "bugs": {
+    "url": "https://github.com/ncss-project/ncss/issues"
   },
   "keywords": [
     "css",

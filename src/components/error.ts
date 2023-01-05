@@ -1,4 +1,4 @@
-import { TypeName, Type, AllType, SCTypeName, Ret } from "./types";
+import { TypeName, Type, AllType, SCTypeName } from "./types";
 
 const syntaxError = {
     function_is_defined: (func_name: string): string => {

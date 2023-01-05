@@ -1,6 +1,6 @@
 import * as Util from "./util";
 import { Errors } from "./error";
-import { Ret, Global, Env, Type, AllType } from "./types";
+import { Env, Type, AllType } from "./types";
 
 class Functions {
     var(env: Env, args: Type[]): AllType {
