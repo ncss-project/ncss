@@ -2,9 +2,9 @@
 
 const fs = require("fs");
 const arg = require('arg');
-const { Scanner } = require("../build/scanner.js");
-const { Evaluator } = require("../build/evaluator.js");
-const Parser = require("../build/parser.js");
+const { Scanner } = require("../dist/scanner.js");
+const { Evaluator } = require("../dist/evaluator.js");
+const Parser = require("../dist/parser.js");
 const package = require("../package.json");
 
 const args = arg({

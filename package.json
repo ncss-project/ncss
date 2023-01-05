@@ -1,42 +1,34 @@
 {
   "name": "@satooru65536/ncss",
+  "description": "NCSS is not CSS.",
+  "author": "SatooRu65536",
   "version": "1.0.4",
-  "description": "NCSS is not CSS",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SatooRu65536/ncss.git"
+  },
   "keywords": [
     "css",
     "scss",
     "ncss"
   ],
-  "publishConfig": {
-    "access": "public"
-  },
-  "type": "commonjs",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/SatooRu65536/ncss.git"
+  "bin": {
+    "ncss": "bin/ncss"
   },
   "scripts": {
     "start": "yarn build && ./bin/ncss",
-    "build": "yarn tsc --outDir build",
+    "build": "yarn tsc",
     "create-command": "npm run build && npm link",
     "v-patch": "npm version patch -m '🔖 Upgrade to %s' && npm publish",
     "v-minor": "npm version minor -m '🔖 Upgrade to %s' && npm publish",
     "v-major": "npm version major -m '🔖 Upgrade to %s' && npm publish"
   },
-  "bin": {
-    "ncss": "bin/ncss"
-  },
-  "author": "SatooRu65536",
-  "license": "MIT",
-  "husky": {
-    "hooks": {
-      "pre-commit": "build"
-    }
-  },
   "devDependencies": {
     "@types/node": "^18.11.18",
-    "husky": "^8.0.2",
-    "ts-migrate": "^0.1.35",
     "typescript": "^4.9.4"
   },
   "dependencies": {
